@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P4Trainer - Sistema de Treinos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: calc(100vh - 40px);
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: white;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+         .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px 20px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #4ECDC4;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.2);
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .user-type-selection {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .user-type-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .user-type-btn.active {
+            border-color: #4ECDC4;
+            background: #4ECDC4;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .workout-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .day-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .day-btn {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .day-btn.active {
+            border-color: #FF6B6B;
+            background: #FF6B6B;
+            color: white;
+        }
+        
+        .exercise-list {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .exercise-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .exercise-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .exercise-thumbnail {
+            width: 45px; /* Aproximadamente 9_ratio * 5 */
+            height: 80px; /* Aproximadamente 16_ratio * 5 */
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 12px;
+            border: 1px solid #eee;
+            flex-shrink: 0; /* Impede que a imagem encolha */
+        }
+        
+        .exercise-details {
+            flex: 1;
+        }
+        
+        .exercise-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .exercise-sets {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+        
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .add-exercise {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .add-exercise input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .workout-display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .workout-day {
+            margin-bottom: 25px;
+        }
+        
+        .workout-day h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 2px solid #4ECDC4;
+            padding-bottom: 5px;
+        }
+        
+        .no-workout {
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .success-message, .error-message { /* Combinação para evitar repetição */
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                min-height: calc(100vh - 20px);
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+             .header h1 {
+                font-size: 20px;
+            }
+            .header p {
+                font-size: 12px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            .day-selector {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            }
+            .add-exercise {
+                grid-template-columns: 1fr; /* Empilha em telas menores */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loginScreen">
+            <div class="header">
+                <h1>💪 P4Trainer</h1>
+                <p>Sistema de Treinos</p>
+            </div>
+            <div class="content">
+                <div class="user-type-selection">
+                    <button class="user-type-btn active" id="userTypeStudentBtn">
+                        🎓 Aluno
+                    </button>
+                    <button class="user-type-btn" id="userTypeTrainerBtn">
+                        👨‍🏫 Treinador
+                    </button>
+                </div>
+                
+                <div class="login-form">
+                    <div class="input-group">
+                        <input type="text" id="email" placeholder="Email ou 'admin'" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="password" placeholder="Senha" required>
+                    </div>
+                    <button class="btn btn-primary" id="loginBtn">Entrar</button>
+                    <button class="btn btn-secondary" id="registerBtn">Cadastrar</button>
+                </div>
+                
+                <div id="message"></div>
+            </div>
+        </div>
+
+        <div id="initialTrainerSetupScreen" class="hidden">
+            <div class="header">
+                <h1>🛠️ Configuração Inicial</h1>
+                <p>Bem-vindo ao P4Trainer! Por favor, complete seu perfil.</p>
+            </div>
+            <div class="content">
+                <div class="login-form">
+                    <div class="input-group">
+                        <input type="text" id="trainerName" placeholder="Seu Nome Completo" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="newPassword" placeholder="Nova Senha (mín. 6 caracteres)" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="confirmNewPassword" placeholder="Confirmar Nova Senha" required>
+                    </div>
+                    <button class="btn btn-primary" id="completeSetupBtn">Salvar Configuração</button>
+                </div>
+                <div id="initialSetupMessage" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+        
+        <div id="trainerScreen" class="hidden">
+            <button class="logout-btn" id="trainerLogoutBtn">Sair</button>
+            <div class="header">
+                <h1>👨‍🏫 Painel do Treinador</h1>
+                <p>Bem-vindo, <span id="trainerNameDisplay" style="font-weight:bold;">Treinador</span>!</p>
+            </div>
+            <div class="content">
+                <div class="workout-form">
+                    <div class="input-group">
+                        <input type="email" id="studentEmail" placeholder="Email do Aluno" required>
+                    </div>
+                    
+                    <div class="day-selector" id="daySelectorContainer">
+                        <button class="day-btn active" data-day="segunda">Seg</button>
+                        <button class="day-btn" data-day="terca">Ter</button>
+                        <button class="day-btn" data-day="quarta">Qua</button>
+                        <button class="day-btn" data-day="quinta">Qui</button>
+                        <button class="day-btn" data-day="sexta">Sex</button>
+                        <button class="day-btn" data-day="sabado">Sáb</button>
+                        <button class="day-btn" data-day="domingo">Dom</button>
+                    </div>
+                    
+                     <div class="input-group" style="margin-bottom: 10px;">
+                        <label for="exerciseImage" style="display: block; margin-bottom: 5px; color: #555; font-size: 14px;">Imagem do Exercício (opcional):</label>
+                        <input type="file" id="exerciseImage" accept="image/*" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%; font-size:14px;">
+                    </div>
+
+                    <div class="add-exercise">
+                        <input type="text" id="exerciseName" placeholder="Nome do Exercício">
+                        <input type="text" id="exerciseSets" placeholder="Séries">
+                        <input type="text" id="exerciseReps" placeholder="Reps">
+                    </div>
+                    
+                    <button class="btn btn-primary" id="addExerciseBtn">Adicionar Exercício</button>
+                    
+                    <div id="currentExercises" class="exercise-list">
+                         <div class="no-workout">Nenhum exercício adicionado para este dia.</div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" id="saveWorkoutBtn">Salvar Treino do Dia</button>
+                </div>
+                
+                <div id="trainerMessage" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+        
+        <div id="studentScreen" class="hidden">
+            <button class="logout-btn" id="studentLogoutBtn">Sair</button>
+            <div class="header">
+                <h1>🎓 Meus Treinos</h1>
+                <p>Visualize seus treinos semanais.</p>
+            </div>
+            <div class="content">
+                <div id="workoutDisplay" class="workout-display">
+                    <div class="no-workout">
+                        Carregando treinos...
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="loadStudentWorkoutsBtn">Atualizar Treinos</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            updatePassword
+        } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            updateDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        import { 
+            getStorage, 
+            ref, 
+            uploadBytes, 
+            getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js"; // Uncomment if you need Analytics
+
+        // Your web app's Firebase configuration (FROM USER)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwLLJDdIEX7R82RxGTbfAWU3olGBaGfn8",
+            authDomain: "p4trainer-268bf.firebaseapp.com",
+            projectId: "p4trainer-268bf",
+            storageBucket: "p4trainer-268bf.appspot.com", // NOTE: Adjusted to .appspot.com as standard for SDK
+            messagingSenderId: "249928558281",
+            appId: "1:249928558281:web:0de427b8ce07cb0f0d8f18",
+            measurementId: "G-CE01C7Z0LB"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        // const analytics = getAnalytics(app); // Uncomment if you need Analytics
+
+        // DOM Elements (cache them for performance)
+        const loginScreen = document.getElementById('loginScreen');
+        const initialTrainerSetupScreen = document.getElementById('initialTrainerSetupScreen');
+        const trainerScreen = document.getElementById('trainerScreen');
+        const studentScreen = document.getElementById('studentScreen');
+
+        const emailInputEl = document.getElementById('email');
+        const passwordInputEl = document.getElementById('password');
+        const messageDiv = document.getElementById('message');
+        const trainerMessageDiv = document.getElementById('trainerMessage');
+        const initialSetupMessageDiv = document.getElementById('initialSetupMessage');
+
+        const trainerNameInput = document.getElementById('trainerName');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+        
+        const trainerNameDisplay = document.getElementById('trainerNameDisplay');
+        const studentEmailInput = document.getElementById('studentEmail');
+        const exerciseImageInput = document.getElementById('exerciseImage');
+        const exerciseNameInput = document.getElementById('exerciseName');
+        const exerciseSetsInput = document.getElementById('exerciseSets');
+        const exerciseRepsInput = document.getElementById('exerciseReps');
+        const currentExercisesDiv = document.getElementById('currentExercises');
+        const workoutDisplayDiv = document.getElementById('workoutDisplay');
+
+
+        // Constantes e Estado da aplicação
+        const ADMIN_EMAIL = "admin@p4trainer.com"; 
+        let currentSelectedUserType = 'student'; 
+        let currentDay = 'segunda';
+        let currentExercises = [];
+        let currentUser = null;
+        let currentUserData = null; 
+
+        // --- Event Listeners ---
+        document.getElementById('userTypeStudentBtn').addEventListener('click', () => selectUserType('student', document.getElementById('userTypeStudentBtn')));
+        document.getElementById('userTypeTrainerBtn').addEventListener('click', () => selectUserType('trainer', document.getElementById('userTypeTrainerBtn')));
+        document.getElementById('loginBtn').addEventListener('click', login);
+        document.getElementById('registerBtn').addEventListener('click', register);
+        document.getElementById('completeSetupBtn').addEventListener('click', completeInitialTrainerSetup);
+        document.getElementById('trainerLogoutBtn').addEventListener('click', logout);
+        document.getElementById('studentLogoutBtn').addEventListener('click', logout);
+        document.getElementById('addExerciseBtn').addEventListener('click', addExercise);
+        document.getElementById('saveWorkoutBtn').addEventListener('click', saveWorkout);
+        document.getElementById('loadStudentWorkoutsBtn').addEventListener('click', loadStudentWorkouts);
+
+        document.getElementById('daySelectorContainer').addEventListener('click', (event) => {
+            if (event.target.classList.contains('day-btn')) {
+                selectDay(event.target.dataset.day, event.target);
+            }
+        });
+        currentExercisesDiv.addEventListener('click', (event) => {
+            if (event.target.classList.contains('delete-btn')) {
+                const exerciseId = event.target.closest('.exercise-item').dataset.id;
+                removeExercise(exerciseId);
+            }
+        });
+
+
+        // Seleção do tipo de usuário na UI
+        function selectUserType(type, element) {
+            currentSelectedUserType = type;
+            document.querySelectorAll('.user-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        // Seleção do dia da semana
+        function selectDay(day, element) {
+            currentDay = day;
+            document.querySelectorAll('.day-selector .day-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            element.classList.add('active');
+            loadDayExercises(); 
+        }
+
+        // Login
+        async function login() {
+            const emailVal = emailInputEl.value.trim();
+            const passwordVal = passwordInputEl.value;
+            
+            if (!emailVal || !passwordVal) {
+                showMessage('Por favor, preencha email/usuário e senha.', 'error');
+                return;
+            }
+
+            const isSpecialAdminLogin = (emailVal.toLowerCase() === 'admin' && passwordVal === 'admin');
+            const effectiveEmail = (emailVal.toLowerCase() === 'admin') ? ADMIN_EMAIL : emailVal;
+
+            try {
+                let userCredential;
+                if (isSpecialAdminLogin) {
+                    userCredential = await signInWithEmailAndPassword(auth, ADMIN_EMAIL, 'admin');
+                } else {
+                    userCredential = await signInWithEmailAndPassword(auth, effectiveEmail, passwordVal);
+                }
+                currentUser = userCredential.user;
+                await fetchAndProcessUserData(currentUser, isSpecialAdminLogin);
+            } catch (error) {
+                console.error("Login error:", error.code, error.message);
+                if (isSpecialAdminLogin && (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'firebaseAuth/invalid-credential')) {
+                     showMessage(`Usuário admin '${ADMIN_EMAIL}' não encontrado ou credenciais inválidas. Crie este usuário no Firebase Authentication com senha inicial 'admin'.`, 'error');
+                } else if (isSpecialAdminLogin && error.code === 'auth/wrong-password') {
+                    showMessage(`Senha "admin" incorreta. Se já a alterou, use o email ${ADMIN_EMAIL} e sua nova senha, ou "admin" no campo email e sua nova senha.`, 'error');
+                } else if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'firebaseAuth/invalid-credential') {
+                    showMessage('Email ou senha incorretos.', 'error');
+                } else {
+                    showMessage('Erro ao fazer login: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        async function fetchAndProcessUserData(user) {
+            const userDocRef = doc(db, 'users', user.uid);
+            let userDocSnapshot = await getDoc(userDocRef);
+
+            if (!userDocSnapshot.exists() && user.email === ADMIN_EMAIL) {
+                const adminData = {
+                    email: user.email,
+                    type: 'trainer',
+                    isFirstLogin: true,
+                    name: 'Admin',
+                    createdAt: serverTimestamp()
+                };
+                await setDoc(userDocRef, adminData);
+                userDocSnapshot = await getDoc(userDocRef); 
+            }
+            
+            if (userDocSnapshot.exists()) {
+                currentUserData = userDocSnapshot.data();
+                currentSelectedUserType = currentUserData.type; 
+
+                if (currentUserData.type === 'trainer') {
+                    if (user.email === ADMIN_EMAIL && currentUserData.isFirstLogin !== false) {
+                        showScreen('initialTrainerSetupScreen');
+                    } else {
+                        trainerNameDisplay.textContent = currentUserData.name || 'Treinador';
+                        showScreen('trainerScreen');
+                    }
+                } else if (currentUserData.type === 'student') {
+                    showScreen('studentScreen');
+                    loadStudentWorkouts();
+                } else {
+                     showMessage('Tipo de usuário desconhecido.', 'error');
+                     await doLogout();
+                }
+            } else {
+                 showMessage('Dados de usuário não encontrados. Se é novo, por favor, cadastre-se.', 'error');
+                 await doLogout(); 
+            }
+        }
+
+        async function register() {
+            const emailVal = emailInputEl.value.trim();
+            const passwordVal = passwordInputEl.value;
+            
+            if (!emailVal || !passwordVal) {
+                showMessage('Por favor, preencha email e senha para o cadastro.', 'error');
+                return;
+            }
+             if (passwordVal.length < 6) {
+                showMessage('A senha deve ter pelo menos 6 caracteres.', 'error');
+                return;
+            }
+            if (emailVal.toLowerCase() === 'admin' || emailVal === ADMIN_EMAIL) {
+                showMessage(`O email/usuário "${emailVal}" é reservado. Escolha outro.`, 'error');
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, emailVal, passwordVal);
+                currentUser = userCredential.user;
+                
+                const newUserIsTrainer = currentSelectedUserType === 'trainer';
+                currentUserData = {
+                    email: emailVal,
+                    type: currentSelectedUserType, 
+                    createdAt: serverTimestamp(),
+                    name: newUserIsTrainer ? 'Novo Treinador' : 'Novo Aluno',
+                };
+                if (newUserIsTrainer) {
+                    currentUserData.isFirstLogin = true; 
+                }
+
+                await setDoc(doc(db, 'users', currentUser.uid), currentUserData);
+                
+                showMessage('Conta criada com sucesso! Fazendo login...', 'success');
+                await fetchAndProcessUserData(currentUser);
+
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    showMessage('Este email já está cadastrado. Tente fazer login.', 'error');
+                } else {
+                    showMessage('Erro ao criar conta: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function completeInitialTrainerSetup() {
+            const trainerNameVal = trainerNameInput.value.trim();
+            const newPasswordVal = newPasswordInput.value;
+            const confirmNewPasswordVal = confirmNewPasswordInput.value;
+
+            if (!trainerNameVal || !newPasswordVal || !confirmNewPasswordVal) {
+                showInitialSetupMessage('Todos os campos são obrigatórios.', 'error');
+                return;
+            }
+            if (newPasswordVal !== confirmNewPasswordVal) {
+                showInitialSetupMessage('As senhas não coincidem.', 'error');
+                return;
+            }
+            if (newPasswordVal.length < 6) {
+                showInitialSetupMessage('A nova senha deve ter pelo menos 6 caracteres.', 'error');
+                return;
+            }
+
+            try {
+                await updatePassword(currentUser, newPasswordVal);
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    name: trainerNameVal,
+                    isFirstLogin: false 
+                });
+                
+                if(currentUserData) { // Should exist
+                    currentUserData.name = trainerNameVal; 
+                    currentUserData.isFirstLogin = false;
+                }
+
+                trainerNameDisplay.textContent = trainerNameVal;
+                showInitialSetupMessage('Configuração salva! Redirecionando...', 'success');
+                setTimeout(() => {
+                    showScreen('trainerScreen');
+                    initialSetupMessageDiv.innerHTML = '';
+                }, 2000);
+
+            } catch (error) {
+                showInitialSetupMessage('Erro: ' + error.message, 'error');
+            }
+        }
+
+        async function doLogout() { // Renamed from logout to avoid conflict with potential global logout
+            try {
+                await signOut(auth);
+                // State reset is handled by onAuthStateChanged
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+            }
+        }
+        // Make it globally accessible for buttons
+        window.logout = doLogout;
+
+
+        function showScreen(screenId) {
+            [loginScreen, initialTrainerSetupScreen, trainerScreen, studentScreen].forEach(s => s.classList.add('hidden'));
+            const screenToShow = document.getElementById(screenId);
+            if (screenToShow) {
+                screenToShow.classList.remove('hidden');
+            } else {
+                loginScreen.classList.remove('hidden'); 
+            }
+        }
+
+        async function addExercise() {
+            const nameVal = exerciseNameInput.value.trim();
+            const setsVal = exerciseSetsInput.value.trim();
+            const repsVal = exerciseRepsInput.value.trim();
+            const imageFile = exerciseImageInput.files[0];
+            
+            if (!nameVal || !setsVal || !repsVal) {
+                showTrainerMessage('Preencha nome, séries e repetições.', 'error');
+                return;
+            }
+            
+            let imageUrl = null;
+            if (imageFile) {
+                showTrainerMessage('Enviando imagem...', 'success'); 
+                try {
+                    const imageName = `exercise_${Date.now()}_${imageFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                    const imagePath = `exercise_images/${currentUser.uid}/${imageName}`;
+                    const storageImageRef = ref(storage, imagePath);
+                    const uploadResult = await uploadBytes(storageImageRef, imageFile);
+                    imageUrl = await getDownloadURL(uploadResult.ref);
+                    showTrainerMessage('Imagem enviada!', 'success');
+                } catch (error) {
+                    console.error("Erro no upload da imagem:", error);
+                    showTrainerMessage('Falha no upload da imagem: ' + error.message, 'error');
+                }
+            }
+
+            const exercise = {
+                name: nameVal,
+                sets: setsVal,
+                reps: repsVal,
+                id: Date.now().toString(), 
+                imageUrl: imageUrl
+            };
+            
+            currentExercises.push(exercise);
+            updateExerciseDisplay();
+            clearExerciseForm();
+            exerciseImageInput.value = ''; 
+        }
+
+        function removeExercise(id) {
+            currentExercises = currentExercises.filter(ex => ex.id !== id);
+            updateExerciseDisplay();
+        }
+
+        function updateExerciseDisplay() {
+            if (!currentExercisesDiv) return;
+            if (currentExercises.length === 0) {
+                currentExercisesDiv.innerHTML = '<div class="no-workout">Nenhum exercício adicionado para este dia.</div>';
+                return;
+            }
+            currentExercisesDiv.innerHTML = currentExercises.map(exercise => `
+                <div class="exercise-item" data-id="${exercise.id}">
+                    ${exercise.imageUrl ? `<img src="${exercise.imageUrl}" alt="${exercise.name}" class="exercise-thumbnail">` : '<div class="exercise-thumbnail" style="background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-size:10px; color:#aaa;">Sem Img</div>'}
+                    <div class="exercise-details">
+                        <div class="exercise-name">${exercise.name}</div>
+                        <div class="exercise-sets">${exercise.sets} séries × ${exercise.reps} repetições</div>
+                    </div>
+                    <button class="delete-btn">×</button> 
+                </div>
+            `).join('');
+        }
+
+        async function saveWorkout() {
+            const studentEmailVal = studentEmailInput.value.trim();
+            if (!studentEmailVal) {
+                showTrainerMessage('Informe o email do aluno.', 'error');
+                return;
+            }
+            
+            try {
+                const usersCollectionRef = collection(db, 'users');
+                const q = query(usersCollectionRef, where('email', '==', studentEmailVal), where('type', '==', 'student'));
+                const usersQuerySnapshot = await getDocs(q);
+                
+                if (usersQuerySnapshot.empty) {
+                    showTrainerMessage('Aluno não encontrado ou email incorreto.', 'error');
+                    return;
+                }
+                
+                const studentDocSnapshot = usersQuerySnapshot.docs[0];
+                const studentUid = studentDocSnapshot.id;
+                
+                const workoutDataToSave = {
+                    [currentDay]: currentExercises, 
+                    updatedAt: serverTimestamp(),
+                    trainerId: currentUser.uid 
+                };
+
+                await setDoc(doc(db, 'workouts', studentUid), workoutDataToSave, { merge: true });
+                showTrainerMessage(`Treino de ${currentDay.charAt(0).toUpperCase() + currentDay.slice(1)} salvo para ${studentEmailVal}!`, 'success');
+            } catch (error) {
+                showTrainerMessage('Erro ao salvar treino: ' + error.message, 'error');
+            }
+        }
+
+        async function loadDayExercises() {
+            const studentEmailVal = studentEmailInput.value.trim();
+            if (!studentEmailVal) {
+                currentExercises = [];
+                updateExerciseDisplay();
+                return;
+            }
+            
+            try {
+                const usersCollectionRef = collection(db, 'users');
+                const q = query(usersCollectionRef, where('email', '==', studentEmailVal), where('type', '==', 'student'));
+                const usersQuerySnapshot = await getDocs(q);
+
+                if (usersQuerySnapshot.empty) {
+                    currentExercises = [];
+                    updateExerciseDisplay();
+                    return;
+                }
+                
+                const studentDocSnapshot = usersQuerySnapshot.docs[0];
+                const studentUid = studentDocSnapshot.id;
+                const workoutDocRef = doc(db, 'workouts', studentUid);
+                const workoutDocSnapshot = await getDoc(workoutDocRef);
+                
+                currentExercises = []; 
+                if (workoutDocSnapshot.exists()) {
+                    const workoutData = workoutDocSnapshot.data();
+                    currentExercises = Array.isArray(workoutData[currentDay]) ? workoutData[currentDay] : [];
+                }
+                updateExerciseDisplay();
+            } catch (error) {
+                console.error('Erro ao carregar exercícios do dia:', error);
+                currentExercises = [];
+                updateExerciseDisplay();
+                showTrainerMessage('Erro ao carregar exercícios: ' + error.message, 'error');
+            }
+        }
+
+        async function loadStudentWorkouts() {
+            if (!currentUser || !workoutDisplayDiv) return;
+            workoutDisplayDiv.innerHTML = '<div class="no-workout">Carregando treinos...</div>';
+
+            try {
+                const workoutDocRef = doc(db, 'workouts', currentUser.uid);
+                const workoutDocSnapshot = await getDoc(workoutDocRef);
+                
+                if (!workoutDocSnapshot.exists()) {
+                    workoutDisplayDiv.innerHTML = '<div class="no-workout">Nenhum treino cadastrado ainda.</div>';
+                    return;
+                }
+                
+                const workoutData = workoutDocSnapshot.data();
+                const days = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+                const dayNames = {
+                    segunda: 'Segunda-feira', terca: 'Terça-feira', quarta: 'Quarta-feira',
+                    quinta: 'Quinta-feira', sexta: 'Sexta-feira', sabado: 'Sábado', domingo: 'Domingo'
+                };
+                
+                let html = '';
+                const workoutDaysData = Object.keys(workoutData).filter(key => days.includes(key));
+                if (workoutDaysData.length === 0 || !workoutDaysData.some(day => workoutData[day] && workoutData[day].length > 0)) {
+                     workoutDisplayDiv.innerHTML = '<div class="no-workout">Nenhum treino cadastrado ainda.</div>';
+                     return;
+                }
+                
+                days.forEach(day => {
+                    const exercises = Array.isArray(workoutData[day]) ? workoutData[day] : [];
+                    html += `<div class="workout-day"><h3>${dayNames[day]}</h3>`;
+                    if (exercises.length === 0) {
+                        html += '<div class="no-workout" style="font-size:14px; padding:10px 0;">Nenhum exercício para este dia.</div>';
+                    } else {
+                        exercises.forEach(exercise => {
+                            html += `
+                                <div class="exercise-item">
+                                     ${exercise.imageUrl ? `<img src="${exercise.imageUrl}" alt="${exercise.name}" class="exercise-thumbnail">` : '<div class="exercise-thumbnail" style="background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-size:10px; color:#aaa;">Sem Img</div>'}
+                                    <div class="exercise-details">
+                                        <div class="exercise-name">${exercise.name}</div>
+                                        <div class="exercise-sets">${exercise.sets} séries × ${exercise.reps} repetições</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    html += '</div>';
+                });
+                workoutDisplayDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('Erro ao carregar treinos do aluno:', error);
+                workoutDisplayDiv.innerHTML = '<div class="no-workout error-message">Erro ao carregar treinos. Tente novamente.</div>';
+            }
+        }
+
+        function showMessage(message, type) {
+            if (!messageDiv) return;
+            messageDiv.innerHTML = `<div class="${type}-message">${message}</div>`;
+            setTimeout(() => { messageDiv.innerHTML = ''; }, 5000);
+        }
+
+        function showTrainerMessage(message, type) {
+             if (!trainerMessageDiv) return;
+            trainerMessageDiv.innerHTML = `<div class="${type}-message">${message}</div>`;
+            setTimeout(() => { trainerMessageDiv.innerHTML = ''; }, 4000);
+        }
+         function showInitialSetupMessage(message, type) {
+             if (!initialSetupMessageDiv) return;
+            initialSetupMessageDiv.innerHTML = `<div class="${type}-message">${message}</div>`;
+            setTimeout(() => { initialSetupMessageDiv.innerHTML = ''; }, 5000);
+        }
+
+
+        function clearForms() {
+            if(emailInputEl) emailInputEl.value = '';
+            if(passwordInputEl) passwordInputEl.value = '';
+            if(studentEmailInput) studentEmailInput.value = '';
+            if(trainerNameInput) trainerNameInput.value = '';
+            if(newPasswordInput) newPasswordInput.value = '';
+            if(confirmNewPasswordInput) confirmNewPasswordInput.value = '';
+            clearExerciseForm();
+        }
+
+        function clearExerciseForm() {
+            if(exerciseNameInput) exerciseNameInput.value = '';
+            if(exerciseSetsInput) exerciseSetsInput.value = '';
+            if(exerciseRepsInput) exerciseRepsInput.value = '';
+            if(exerciseImageInput) exerciseImageInput.value = ''; 
+        }
+
+        // Handle Auth State Changes
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await fetchAndProcessUserData(user);
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                currentExercises = [];
+                if(trainerNameDisplay) trainerNameDisplay.textContent = 'Treinador';
+                clearForms();
+                showScreen('loginScreen');
+            }
+        });
+
+        // Initial UI Setup
+        document.addEventListener('DOMContentLoaded', () => {
+            selectUserType('student', document.getElementById('userTypeStudentBtn'));
+            const firstDayButton = document.querySelector('.day-selector .day-btn[data-day="segunda"]');
+            if(firstDayButton && typeof firstDayButton.click === 'function') { 
+                 // No need to click, selectDay is called by onAuthStateChanged or login flows
+                 // Just ensure it's visually active if it's the default
+                 if (currentDay === 'segunda') firstDayButton.classList.add('active');
+            }
+        });
+
+    </script>
+</body>
+</html>
