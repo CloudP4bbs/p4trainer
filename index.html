@@ -1,47 +1,422 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P4Trainer - Login</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>P4Trainer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .navbar h2 {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .workout-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .workout-day {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .exercise-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .exercise-image {
+            width: 60px;
+            height: 107px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #e9ecef;
+        }
+
+        .exercise-details {
+            flex: 1;
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .exercise-reps {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+
+        .day-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .day-btn {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .day-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+            object-fit: cover;
+        }
+
+        .user-selector {
+            margin-bottom: 20px;
+        }
+
+        .student-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .student-card:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .student-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .student-workouts {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container login-container">
-        <header>
-            <h1>P4Trainer</h1>
-        </header>
-        <main>
-            <form id="loginForm">
-                <h2>Login</h2>
+    <div class="container">
+        <!-- Tela de Login -->
+        <div id="loginScreen" class="screen">
+            <div class="header">
+                <h1>💪 P4Trainer</h1>
+                <p>Sistema de Treinos Personalizado</p>
+            </div>
+            
+            <div class="card">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Usuário</label>
+                        <input type="text" id="username" class="form-control" placeholder="Digite seu usuário" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" class="form-control" placeholder="Digite sua senha" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tela do Admin -->
+        <div id="adminScreen" class="screen hidden">
+            <div class="navbar">
+                <h2>👨‍💼 Painel Admin</h2>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </div>
+
+            <div class="card">
+                <button class="btn btn-primary" onclick="showCreateWorkout()">+ Criar Novo Treino</button>
+                <button class="btn btn-secondary" onclick="showStudentManagement()">👥 Gerenciar Alunos</button>
+            </div>
+
+            <div id="workoutsList"></div>
+        </div>
+
+        <!-- Tela do Aluno -->
+        <div id="studentScreen" class="screen hidden">
+            <div class="navbar">
+                <h2 id="studentWelcome">👋 Olá, Aluno!</h2>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </div>
+
+            <div id="studentWorkouts"></div>
+        </div>
+
+        <!-- Tela de Seleção de Aluno (Admin) -->
+        <div id="studentSelectionScreen" class="screen hidden">
+            <div class="navbar">
+                <h2>👥 Selecionar Aluno</h2>
+                <button class="btn-logout" onclick="showAdminScreen()">Voltar</button>
+            </div>
+
+            <div class="card">
                 <div class="form-group">
-                    <label for="email">Email (ou "admin" para teste inicial):</label>
-                    <input type="text" id="email" name="email" required>
+                    <label>Novo Aluno</label>
+                    <input type="text" id="newStudentName" class="form-control" placeholder="Nome do novo aluno">
+                    <button class="btn btn-success" onclick="createStudent()" style="margin-top: 10px;">Adicionar Aluno</button>
                 </div>
-                <div class="form-group">
-                    <label for="password">Senha (ou "p4trainer" para teste inicial):</label>
-                    <input type="password" id="password" name="password" required>
+            </div>
+
+            <div id="studentsList"></div>
+        </div>
+    </div>
+
+    <!-- Modal para Criar/Editar Treino -->
+    <div id="workoutModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modalTitle">Criar Novo Treino</h3>
+            
+            <div class="form-group">
+                <label>Aluno</label>
+                <select id="modalStudentSelect" class="form-control">
+                    <option value="">Selecione um aluno</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Dia da Semana</label>
+                <div class="day-selector">
+                    <div class="day-btn" data-day="segunda">Segunda</div>
+                    <div class="day-btn" data-day="terca">Terça</div>
+                    <div class="day-btn" data-day="quarta">Quarta</div>
+                    <div class="day-btn" data-day="quinta">Quinta</div>
+                    <div class="day-btn" data-day="sexta">Sexta</div>
+                    <div class="day-btn" data-day="sabado">Sábado</div>
                 </div>
-                <button type="submit" class="btn">Entrar</button>
-                <p id="loginError" class="error-message"></p>
-            </form>
-        </main>
-        <footer>
-            <p>&copy; 2025 P4Trainer</p>
-        </footer>
+            </div>
+
+            <div id="exercisesList">
+                <h4>Exercícios</h4>
+                <div id="exercisesContainer"></div>
+                <button type="button" class="btn btn-secondary" onclick="addExercise()">+ Adicionar Exercício</button>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="saveWorkout()">Salvar</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
-        // Importe as funções que você precisa das SDKs que você precisa
+        // Firebase configuration
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        // Adicione as SDKs para os produtos Firebase que você deseja usar
-        // https://firebase.google.com/docs/web/setup#available-libraries
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
 
-        // Sua configuração do Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyBwLLJDdIEX7R82RxGTbfAWU3olGBaGfn8", // Sua API Key
+            apiKey: "AIzaSyBwLLJDdIEX7R82RxGTbfAWU3olGBaGfn8",
             authDomain: "p4trainer-268bf.firebaseapp.com",
             projectId: "p4trainer-268bf",
             storageBucket: "p4trainer-268bf.firebasestorage.app",
@@ -50,110 +425,403 @@
             measurementId: "G-CE01C7Z0LB"
         };
 
-        // Inicialize o Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
-        // Lógica de Login
-        const loginForm = document.getElementById('loginForm');
-        const loginError = document.getElementById('loginError');
+        // Estado global
+        window.currentUser = null;
+        window.currentWorkout = null;
+        window.students = [];
+        window.workouts = [];
 
-        // Checa estado de autenticação
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                console.log("Usuário logado:", user.uid, user.email);
-                // Verificar papel do usuário no Firestore
-                const userDocRef = doc(db, "users", user.uid);
-                try {
-                    const userDocSnap = await getDoc(userDocRef);
-                    if (userDocSnap.exists()) {
-                        const userData = userDocSnap.data();
-                        console.log("Dados do usuário:", userData);
-                        if (userData.role === 'admin') {
-                            window.location.href = 'admin.html';
-                        } else if (userData.role === 'aluno') {
-                            window.location.href = 'student.html';
-                        } else {
-                            loginError.textContent = "Papel de usuário não definido. Contate o suporte.";
-                            await signOut(auth); // Faz logout se o papel não for reconhecido
-                        }
-                    } else {
-                        // Este caso pode ocorrer se o usuário admin inicial (admin@p4trainer.com)
-                        // foi autenticado, mas o documento 'role' não foi criado no Firestore.
-                        if (user.email === 'admin@p4trainer.com') { // Email usado para o admin no Firebase Auth
-                            console.warn("Admin logado, mas sem documento de 'role' no Firestore. Redirecionando para admin.html. CRIE O DOCUMENTO NO FIRESTORE!");
-                            window.location.href = 'admin.html';
-                        } else {
-                            loginError.textContent = "Usuário não encontrado no banco de dados de papéis.";
-                            await signOut(auth);
-                        }
-                    }
-                } catch (error) {
-                    console.error("Erro ao buscar papel do usuário:", error);
-                    loginError.textContent = "Erro ao verificar dados do usuário. Tente novamente.";
-                    await signOut(auth);
-                }
-            } else {
-                console.log("Nenhum usuário logado.");
-                // Permanece na página de login ou limpa erros se necessário
-            }
-        });
+        // Funções de navegação
+        window.showScreen = function(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+        }
 
-        loginForm.addEventListener('submit', async (e) => {
+        window.logout = function() {
+            window.currentUser = null;
+            showScreen('loginScreen');
+            document.getElementById('loginForm').reset();
+        }
+
+        window.showAdminScreen = function() {
+            showScreen('adminScreen');
+            loadWorkouts();
+        }
+
+        window.showStudentManagement = function() {
+            showScreen('studentSelectionScreen');
+            loadStudents();
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const emailInput = loginForm.email.value;
-            const password = loginForm.password.value;
-            loginError.textContent = '';
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-            // Lógica para o admin inicial (admin/p4trainer)
-            // EM PRODUÇÃO: Crie um usuário admin real no Firebase Auth (ex: admin@seudominio.com)
-            // e associe a role "admin" a ele no Firestore.
-            if (emailInput.toLowerCase() === 'admin' && password === 'p4trainer') {
-                console.log("Tentativa de login com credenciais de admin hardcoded (admin/p4trainer).");
-                // Tenta logar com um email de admin pré-definido no Firebase Auth
-                // Certifique-se de que este usuário 'admin@p4trainer.com' exista no Firebase Authentication
-                // e tenha a senha 'p4trainer'.
-                try {
-                    // ************************************************************************************
-                    // IMPORTANTE: Substitua 'admin@p4trainer.com' pelo email real do seu admin
-                    // cadastrado no Firebase Authentication. A senha deve corresponder.
-                    // ************************************************************************************
-                    const userCredential = await signInWithEmailAndPassword(auth, "admin@p4trainer.com", "p4trainer");
-                    // O onAuthStateChanged tratará do redirecionamento.
-                    console.log("Login do admin (admin@p4trainer.com) bem-sucedido via Firebase Auth.");
-                } catch (error) {
-                    console.error("Erro no login do admin (admin@p4trainer.com) com Firebase:", error);
-                    if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                        loginError.textContent = 'Credenciais de admin (admin@p4trainer.com) inválidas no Firebase. Verifique o console do Firebase.';
-                    } else if (error.code === 'auth/invalid-email') {
-                         loginError.textContent = 'O email "admin@p4trainer.com" é inválido. Verifique a configuração.';
+            if (username === 'admin' && password === 'p4trainer') {
+                window.currentUser = { type: 'admin', username: 'admin' };
+                showAdminScreen();
+            } else {
+                // Verificar se é um aluno
+                const studentsSnapshot = await getDocs(collection(db, 'students'));
+                let found = false;
+                studentsSnapshot.forEach(doc => {
+                    const student = doc.data();
+                    if (student.username === username && student.password === password) {
+                        window.currentUser = { type: 'student', id: doc.id, ...student };
+                        document.getElementById('studentWelcome').textContent = `👋 Olá, ${student.name}!`;
+                        showScreen('studentScreen');
+                        loadStudentWorkouts();
+                        found = true;
                     }
-                    else {
-                        loginError.textContent = 'Erro ao logar admin: ' + error.message;
-                    }
-                }
-                return; // Finaliza aqui para o admin
-            }
-
-            // Lógica de login para alunos (usando Firebase Auth com o email fornecido)
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, emailInput, password);
-                // O onAuthStateChanged tratará do redirecionamento.
-                console.log("Login de aluno bem-sucedido:", userCredential.user.email);
-            } catch (error) {
-                console.error("Erro de login do aluno:", error);
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    loginError.textContent = 'Email ou senha inválidos.';
-                } else if (error.code === 'auth/invalid-email') {
-                    loginError.textContent = 'Formato de email inválido.';
-                }
-                else {
-                    loginError.textContent = 'Erro ao fazer login: ' + error.message;
+                });
+                
+                if (!found) {
+                    alert('Usuário ou senha incorretos!');
                 }
             }
         });
+
+        // Gerenciamento de alunos
+        window.loadStudents = async function() {
+            const studentsSnapshot = await getDocs(collection(db, 'students'));
+            window.students = [];
+            studentsSnapshot.forEach(doc => {
+                window.students.push({ id: doc.id, ...doc.data() });
+            });
+            renderStudents();
+            updateStudentSelects();
+        }
+
+        window.renderStudents = function() {
+            const container = document.getElementById('studentsList');
+            container.innerHTML = '';
+            
+            window.students.forEach(student => {
+                const studentCard = document.createElement('div');
+                studentCard.className = 'student-card';
+                studentCard.innerHTML = `
+                    <div class="student-name">${student.name}</div>
+                    <div class="student-workouts">Usuário: ${student.username}</div>
+                    <div class="admin-actions">
+                        <button class="btn-small btn-danger" onclick="deleteStudent('${student.id}')">Excluir</button>
+                    </div>
+                `;
+                container.appendChild(studentCard);
+            });
+        }
+
+        window.createStudent = async function() {
+            const name = document.getElementById('newStudentName').value.trim();
+            if (!name) {
+                alert('Digite o nome do aluno!');
+                return;
+            }
+
+            const username = name.toLowerCase().replace(/\s+/g, '');
+            const password = '123456'; // Senha padrão
+
+            try {
+                await addDoc(collection(db, 'students'), {
+                    name: name,
+                    username: username,
+                    password: password,
+                    createdAt: new Date()
+                });
+                
+                document.getElementById('newStudentName').value = '';
+                loadStudents();
+                alert(`Aluno criado!\nUsuário: ${username}\nSenha: ${password}`);
+            } catch (error) {
+                alert('Erro ao criar aluno: ' + error.message);
+            }
+        }
+
+        window.deleteStudent = async function(studentId) {
+            if (confirm('Tem certeza que deseja excluir este aluno?')) {
+                try {
+                    await deleteDoc(doc(db, 'students', studentId));
+                    loadStudents();
+                } catch (error) {
+                    alert('Erro ao excluir aluno: ' + error.message);
+                }
+            }
+        }
+
+        // Gerenciamento de treinos
+        window.loadWorkouts = async function() {
+            const workoutsSnapshot = await getDocs(collection(db, 'workouts'));
+            window.workouts = [];
+            workoutsSnapshot.forEach(doc => {
+                window.workouts.push({ id: doc.id, ...doc.data() });
+            });
+            renderWorkouts();
+        }
+
+        window.renderWorkouts = function() {
+            const container = document.getElementById('workoutsList');
+            container.innerHTML = '';
+            
+            window.workouts.forEach(workout => {
+                const student = window.students.find(s => s.id === workout.studentId);
+                const studentName = student ? student.name : 'Aluno não encontrado';
+                
+                const workoutCard = document.createElement('div');
+                workoutCard.className = 'workout-card';
+                workoutCard.innerHTML = `
+                    <div class="workout-day">${capitalizeFirst(workout.day)} - ${studentName}</div>
+                    ${workout.exercises.map(exercise => `
+                        <div class="exercise-item">
+                            ${exercise.image ? `<img src="${exercise.image}" class="exercise-image" alt="${exercise.name}">` : '<div class="exercise-image"></div>'}
+                            <div class="exercise-details">
+                                <div class="exercise-name">${exercise.name}</div>
+                                <div class="exercise-reps">${exercise.sets} séries x ${exercise.reps} repetições</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <div class="admin-actions">
+                        <button class="btn-small btn-secondary" onclick="editWorkout('${workout.id}')">Editar</button>
+                        <button class="btn-small btn-danger" onclick="deleteWorkout('${workout.id}')">Excluir</button>
+                    </div>
+                `;
+                container.appendChild(workoutCard);
+            });
+        }
+
+        window.loadStudentWorkouts = async function() {
+            const q = query(collection(db, 'workouts'), where('studentId', '==', window.currentUser.id));
+            const workoutsSnapshot = await getDocs(q);
+            const studentWorkouts = [];
+            workoutsSnapshot.forEach(doc => {
+                studentWorkouts.push({ id: doc.id, ...doc.data() });
+            });
+            renderStudentWorkouts(studentWorkouts);
+        }
+
+        window.renderStudentWorkouts = function(workouts) {
+            const container = document.getElementById('studentWorkouts');
+            container.innerHTML = '';
+            
+            if (workouts.length === 0) {
+                container.innerHTML = '<div class="card"><p>Nenhum treino foi criado para você ainda.</p></div>';
+                return;
+            }
+            
+            workouts.forEach(workout => {
+                const workoutCard = document.createElement('div');
+                workoutCard.className = 'workout-card';
+                workoutCard.innerHTML = `
+                    <div class="workout-day">${capitalizeFirst(workout.day)}</div>
+                    ${workout.exercises.map(exercise => `
+                        <div class="exercise-item">
+                            ${exercise.image ? `<img src="${exercise.image}" class="exercise-image" alt="${exercise.name}">` : '<div class="exercise-image"></div>'}
+                            <div class="exercise-details">
+                                <div class="exercise-name">${exercise.name}</div>
+                                <div class="exercise-reps">${exercise.sets} séries x ${exercise.reps} repetições</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                container.appendChild(workoutCard);
+            });
+        }
+
+        // Modal de treino
+        window.showCreateWorkout = function() {
+            window.currentWorkout = null;
+            document.getElementById('modalTitle').textContent = 'Criar Novo Treino';
+            resetWorkoutModal();
+            document.getElementById('workoutModal').classList.remove('hidden');
+        }
+
+        window.editWorkout = function(workoutId) {
+            const workout = window.workouts.find(w => w.id === workoutId);
+            if (!workout) return;
+            
+            window.currentWorkout = workout;
+            document.getElementById('modalTitle').textContent = 'Editar Treino';
+            
+            // Preencher formulário
+            document.getElementById('modalStudentSelect').value = workout.studentId;
+            document.querySelector(`[data-day="${workout.day}"]`).classList.add('active');
+            
+            // Preencher exercícios
+            const container = document.getElementById('exercisesContainer');
+            container.innerHTML = '';
+            workout.exercises.forEach(exercise => {
+                addExercise(exercise);
+            });
+            
+            document.getElementById('workoutModal').classList.remove('hidden');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('workoutModal').classList.add('hidden');
+            resetWorkoutModal();
+        }
+
+        window.resetWorkoutModal = function() {
+            document.getElementById('modalStudentSelect').value = '';
+            document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('exercisesContainer').innerHTML = '';
+            addExercise(); // Adicionar um exercício vazio
+        }
+
+        window.addExercise = function(exerciseData = null) {
+            const container = document.getElementById('exercisesContainer');
+            const exerciseDiv = document.createElement('div');
+            exerciseDiv.className = 'exercise-item';
+            exerciseDiv.style.flexDirection = 'column';
+            exerciseDiv.innerHTML = `
+                <div style="display: flex; gap: 10px; width: 100%; align-items: flex-start;">
+                    <div style="flex: 1;">
+                        <input type="text" placeholder="Nome do exercício" class="form-control" value="${exerciseData ? exerciseData.name : ''}" style="margin-bottom: 10px;">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" placeholder="Séries" class="form-control" value="${exerciseData ? exerciseData.sets : ''}" min="1">
+                            <input type="number" placeholder="Repetições" class="form-control" value="${exerciseData ? exerciseData.reps : ''}" min="1">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-small btn-danger" onclick="removeExercise(this)">Remover</button>
+                </div>
+                <div style="width: 100%; margin-top: 10px;">
+                    <input type="file" accept="image/*" class="form-control" onchange="previewImage(this)">
+                    ${exerciseData && exerciseData.image ? `<img src="${exerciseData.image}" class="image-preview" alt="Preview">` : ''}
+                </div>
+            `;
+            container.appendChild(exerciseDiv);
+        }
+
+        window.removeExercise = function(button) {
+            button.closest('.exercise-item').remove();
+        }
+
+        window.previewImage = function(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let preview = input.parentNode.querySelector('.image-preview');
+                    if (!preview) {
+                        preview = document.createElement('img');
+                        preview.className = 'image-preview';
+                        input.parentNode.appendChild(preview);
+                    }
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Seleção de dias
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('day-btn')) {
+                document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+            }
+        });
+
+        window.saveWorkout = async function() {
+            const studentId = document.getElementById('modalStudentSelect').value;
+            const dayBtn = document.querySelector('.day-btn.active');
+            const day = dayBtn ? dayBtn.dataset.day : null;
+            
+            if (!studentId || !day) {
+                alert('Preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            const exercises = [];
+            const exerciseItems = document.querySelectorAll('#exercisesContainer .exercise-item');
+            
+            for (let item of exerciseItems) {
+                const name = item.querySelector('input[placeholder="Nome do exercício"]').value.trim();
+                const sets = parseInt(item.querySelector('input[placeholder="Séries"]').value);
+                const reps = parseInt(item.querySelector('input[placeholder="Repetições"]').value);
+                const imageFile = item.querySelector('input[type="file"]').files[0];
+                
+                if (!name || !sets || !reps) {
+                    alert('Preencha todos os campos dos exercícios!');
+                    return;
+                }
+                
+                let imageUrl = '';
+                if (imageFile) {
+                    try {
+                        const imageRef = ref(storage, `exercises/${Date.now()}_${imageFile.name}`);
+                        await uploadBytes(imageRef, imageFile);
+                        imageUrl = await getDownloadURL(imageRef);
+                    } catch (error) {
+                        console.error('Erro ao fazer upload da imagem:', error);
+                    }
+                } else if (window.currentWorkout) {
+                    // Manter imagem existente se estiver editando
+                    const existingExercise = window.currentWorkout.exercises.find(e => e.name === name);
+                    imageUrl = existingExercise ? existingExercise.image || '' : '';
+                }
+                
+                exercises.push({ name, sets, reps, image: imageUrl });
+            }
+            
+            const workoutData = {
+                studentId,
+                day,
+                exercises,
+                updatedAt: new Date()
+            };
+            
+            try {
+                if (window.currentWorkout) {
+                    await updateDoc(doc(db, 'workouts', window.currentWorkout.id), workoutData);
+                } else {
+                    await addDoc(collection(db, 'workouts'), {
+                        ...workoutData,
+                        createdAt: new Date()
+                    });
+                }
+                
+                closeModal();
+                loadWorkouts();
+                alert('Treino salvo com sucesso!');
+            } catch (error) {
+                alert('Erro ao salvar treino: ' + error.message);
+            }
+        }
+
+        window.deleteWorkout = async function(workoutId) {
+            if (confirm('Tem certeza que deseja excluir este treino?')) {
+                try {
+                    await deleteDoc(doc(db, 'workouts', workoutId));
+                    loadWorkouts();
+                } catch (error) {
+                    alert('Erro ao excluir treino: ' + error.message);
+                }
+            }
+        }
+
+        window.updateStudentSelects = function() {
+            const select = document.getElementById('modalStudentSelect');
+            select.innerHTML = '<option value="">Selecione um aluno</option>';
+            window.students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.name;
+                select.appendChild(option);
+            });
+        }
+
+        // Utilitários
+        window.capitalizeFirst = function(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Inicialização
+        window.onload = function() {
+            loadStudents();
+        }
     </script>
 </body>
 </html>
-
