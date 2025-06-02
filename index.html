@@ -315,12 +315,18 @@
                 <form id="loginForm">
                     <div class="form-group">
                         <label for="username">Usuário</label>
-                        <input type="text" id="username" class="form-control" placeholder="Digite seu usuário" required>
+                        <input type="text" id="username" class="form-control" placeholder="Digite seu usuário ou admin" required>
+                        <small style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 5px; display: block;">
+                            Admin: digite "admin" | Alunos: digite seu username
+                        </small>
                     </div>
                     
                     <div class="form-group">
                         <label for="password">Senha</label>
                         <input type="password" id="password" class="form-control" placeholder="Digite sua senha" required>
+                        <small style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 5px; display: block;">
+                            Admin: p4trainer | Alunos: senha fornecida pelo treinador
+                        </small>
                     </div>
                     
                     <button type="submit" class="btn btn-primary">Entrar</button>
@@ -412,7 +418,8 @@
     <script type="module">
         // Firebase configuration
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -426,6 +433,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
 
@@ -435,16 +443,47 @@
         window.students = [];
         window.workouts = [];
 
+        // Monitor de autenticação
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Verificar se é admin
+                if (user.email === 'admin@p4trainer.com') {
+                    window.currentUser = { type: 'admin', uid: user.uid, email: user.email };
+                    showAdminScreen();
+                } else {
+                    // Buscar dados do aluno no Firestore
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        window.currentUser = { type: 'student', uid: user.uid, ...userData };
+                        document.getElementById('studentWelcome').textContent = `👋 Olá, ${userData.name}!`;
+                        showScreen('studentScreen');
+                        loadStudentWorkouts();
+                    }
+                }
+            } else {
+                // Usuário não logado
+                window.currentUser = null;
+                showScreen('loginScreen');
+            }
+        });
+
         // Funções de navegação
         window.showScreen = function(screenId) {
             document.querySelectorAll('.screen').forEach(screen => screen.classList.add('hidden'));
             document.getElementById(screenId).classList.remove('hidden');
         }
 
-        window.logout = function() {
-            window.currentUser = null;
-            showScreen('loginScreen');
-            document.getElementById('loginForm').reset();
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.currentUser = null;
+                showScreen('loginScreen');
+                document.getElementById('loginForm').reset();
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao sair: ' + error.message);
+            }
         }
 
         window.showAdminScreen = function() {
@@ -460,38 +499,68 @@
         // Login
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
 
-            if (username === 'admin' && password === 'p4trainer') {
-                window.currentUser = { type: 'admin', username: 'admin' };
-                showAdminScreen();
-            } else {
-                // Verificar se é um aluno
-                const studentsSnapshot = await getDocs(collection(db, 'students'));
-                let found = false;
-                studentsSnapshot.forEach(doc => {
-                    const student = doc.data();
-                    if (student.username === username && student.password === password) {
-                        window.currentUser = { type: 'student', id: doc.id, ...student };
-                        document.getElementById('studentWelcome').textContent = `👋 Olá, ${student.name}!`;
-                        showScreen('studentScreen');
-                        loadStudentWorkouts();
-                        found = true;
+            if (!username || !password) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            try {
+                // Verificar se é login de admin
+                if (username === 'admin' && password === 'p4trainer') {
+                    await signInWithEmailAndPassword(auth, 'admin@p4trainer.com', 'p4trainer123');
+                    return;
+                }
+
+                // Login de aluno - buscar por username
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                let studentEmail = null;
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (userData.username === username && userData.type === 'student') {
+                        studentEmail = userData.email;
                     }
                 });
-                
-                if (!found) {
-                    alert('Usuário ou senha incorretos!');
+
+                if (studentEmail) {
+                    await signInWithEmailAndPassword(auth, studentEmail, password);
+                } else {
+                    alert('Usuário não encontrado! Verifique seu username.');
                 }
+                
+            } catch (error) {
+                console.error('Erro no login:', error);
+                let errorMessage = 'Erro no login. ';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'Usuário não encontrado.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Senha incorreta.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Email inválido.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage += 'Muitas tentativas. Tente novamente mais tarde.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
             }
         });
 
         // Gerenciamento de alunos
         window.loadStudents = async function() {
-            const studentsSnapshot = await getDocs(collection(db, 'students'));
+            const usersSnapshot = await getDocs(query(collection(db, 'users'), where('type', '==', 'student')));
             window.students = [];
-            studentsSnapshot.forEach(doc => {
+            usersSnapshot.forEach(doc => {
                 window.students.push({ id: doc.id, ...doc.data() });
             });
             renderStudents();
@@ -507,7 +576,7 @@
                 studentCard.className = 'student-card';
                 studentCard.innerHTML = `
                     <div class="student-name">${student.name}</div>
-                    <div class="student-workouts">Usuário: ${student.username}</div>
+                    <div class="student-workouts">Usuário: ${student.username} | Email: ${student.email}</div>
                     <div class="admin-actions">
                         <button class="btn-small btn-danger" onclick="deleteStudent('${student.id}')">Excluir</button>
                     </div>
@@ -523,31 +592,76 @@
                 return;
             }
 
-            const username = name.toLowerCase().replace(/\s+/g, '');
-            const password = '123456'; // Senha padrão
+            const username = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+            const email = `${username}@p4trainer.com`;
+            const password = 'p4trainer123'; // Senha padrão
 
             try {
-                await addDoc(collection(db, 'students'), {
+                // Criar usuário no Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Salvar dados adicionais no Firestore
+                await setDoc(doc(db, 'users', user.uid), {
                     name: name,
                     username: username,
-                    password: password,
+                    email: email,
+                    type: 'student',
                     createdAt: new Date()
                 });
                 
                 document.getElementById('newStudentName').value = '';
                 loadStudents();
-                alert(`Aluno criado!\nUsuário: ${username}\nSenha: ${password}`);
+                alert(`Aluno criado com sucesso!\n\nDados de login:\nUsuário: ${username}\nSenha: ${password}\n\n(O aluno pode usar o username para fazer login)`);
+                
+                // Fazer logout do usuário recém-criado para não interferir na sessão do admin
+                await signOut(auth);
+                
             } catch (error) {
-                alert('Erro ao criar aluno: ' + error.message);
+                console.error('Erro ao criar aluno:', error);
+                let errorMessage = 'Erro ao criar aluno: ';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'Este email já está em uso.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'A senha deve ter pelo menos 6 caracteres.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Email inválido.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
             }
         }
 
         window.deleteStudent = async function(studentId) {
-            if (confirm('Tem certeza que deseja excluir este aluno?')) {
+            if (confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
                 try {
-                    await deleteDoc(doc(db, 'students', studentId));
+                    // Primeiro, deletar todos os treinos do aluno
+                    const workoutsQuery = query(collection(db, 'workouts'), where('studentId', '==', studentId));
+                    const workoutsSnapshot = await getDocs(workoutsQuery);
+                    
+                    // Deletar treinos
+                    const deletePromises = [];
+                    workoutsSnapshot.forEach(doc => {
+                        deletePromises.push(deleteDoc(doc.ref));
+                    });
+                    await Promise.all(deletePromises);
+                    
+                    // Deletar dados do usuário no Firestore
+                    await deleteDoc(doc(db, 'users', studentId));
+                    
                     loadStudents();
+                    loadWorkouts();
+                    alert('Aluno excluído com sucesso!');
+                    
                 } catch (error) {
+                    console.error('Erro ao excluir aluno:', error);
                     alert('Erro ao excluir aluno: ' + error.message);
                 }
             }
@@ -594,7 +708,7 @@
         }
 
         window.loadStudentWorkouts = async function() {
-            const q = query(collection(db, 'workouts'), where('studentId', '==', window.currentUser.id));
+            const q = query(collection(db, 'workouts'), where('studentId', '==', window.currentUser.uid));
             const workoutsSnapshot = await getDocs(q);
             const studentWorkouts = [];
             workoutsSnapshot.forEach(doc => {
@@ -819,7 +933,29 @@
         }
 
         // Inicialização
-        window.onload = function() {
+        window.onload = async function() {
+            // Criar conta admin se não existir
+            try {
+                await signInWithEmailAndPassword(auth, 'admin@p4trainer.com', 'p4trainer123');
+                await signOut(auth);
+            } catch (error) {
+                if (error.code === 'auth/user-not-found') {
+                    try {
+                        const adminCredential = await createUserWithEmailAndPassword(auth, 'admin@p4trainer.com', 'p4trainer123');
+                        await setDoc(doc(db, 'users', adminCredential.user.uid), {
+                            name: 'Administrador',
+                            username: 'admin',
+                            email: 'admin@p4trainer.com',
+                            type: 'admin',
+                            createdAt: new Date()
+                        });
+                        await signOut(auth);
+                    } catch (createError) {
+                        console.error('Erro ao criar conta admin:', createError);
+                    }
+                }
+            }
+            
             loadStudents();
         }
     </script>
