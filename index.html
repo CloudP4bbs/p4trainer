@@ -42,8 +42,16 @@
         .stat-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
         .stat-label { font-size: 12px; color: #6B7280; }
         .grid-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
-        .grid-row { display: flex; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
-        .numero-button { width: 50px; height: 50px; margin: 4px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        
+        /* CORREÇÃO DE FORMATAÇÃO DO GRID */
+        #numerosGrid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .numero-button { width: 50px; height: 50px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
         .numero-disponivel { background: white; border-color: #D1D5DB; color: #374151; }
         .numero-disponivel:hover { border-color: #3B82F6; background: #F3F4F6; }
         .numero-vendido { background: #10B981; border-color: #059669; color: white; }
@@ -175,11 +183,11 @@
                 <div class="row">
                     <div class="half-input">
                         <label class="label">Número Inicial</label>
-                        <input type="number" id="inicioConfigInput" class="input">
+                        <input type="number" id="inicioConfigInput" class="input" disabled>
                     </div>
                     <div class="half-input">
                         <label class="label">Número Final</label>
-                        <input type="number" id="fimConfigInput" class="input">
+                        <input type="number" id="fimConfigInput" class="input" disabled>
                     </div>
                 </div>
                 <button onclick="salvarConfiguracoes()" class="primary-button">Salvar Configurações</button>
@@ -218,7 +226,6 @@
     let googleAccessToken = null;
     let googleDriveFileId = null;
     let lastSavedDataHash = '';
-    let saveTimeout = null;
 
     const STORAGE_KEYS = {
         vendedor: 'rifaacs_vendedor',
@@ -232,21 +239,17 @@
     // LÓGICA DE INICIALIZAÇÃO E UI
     // ==================================================================
     document.addEventListener('DOMContentLoaded', function() {
-        // --- Event Listeners ---
         document.getElementById('googleSignInBtn').addEventListener('click', handleAuthClick);
         const vendedorInput = document.getElementById('vendedorInput');
         const comecarBtn = document.getElementById('comecarBtn');
-        vendedorInput.addEventListener('input', () => {
-            comecarBtn.disabled = !vendedorInput.value.trim();
-        });
+        vendedorInput.addEventListener('input', () => { comecarBtn.disabled = !vendedorInput.value.trim(); });
         comecarBtn.addEventListener('click', inicializarApp);
         document.getElementById('exportBtn').addEventListener('click', () => mostrarModal('exportModal'));
         document.getElementById('configBtn').addEventListener('click', mostrarConfigModal);
         document.getElementById('resetBtn').addEventListener('click', resetarApp);
         document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
-        document.getElementById('syncBtn').addEventListener('click', syncWithCloud);
-
-        // --- Carregar dados salvos ---
+        document.getElementById('syncBtn').addEventListener('click', () => syncWithCloud(true)); // Forçar sync
+        
         if (localStorage.getItem(STORAGE_KEYS.configurado)) {
             carregarDadosLocais();
             irParaAppPrincipal();
@@ -257,17 +260,11 @@
         vendedor = document.getElementById('vendedorInput').value.trim();
         intervaloInicio = parseInt(document.getElementById('inicioInput').value) || 1;
         intervaloFim = parseInt(document.getElementById('fimInput').value) || 100;
-
-        if (!vendedor) {
-            alert("Por favor, digite o nome do vendedor.");
-            return;
-        }
-
+        if (!vendedor) { alert("Por favor, digite o nome do vendedor."); return; }
         numeros = [];
         for (let i = intervaloInicio; i <= intervaloFim; i++) {
             numeros.push({ numero: i, status: 'disponivel' });
         }
-
         localStorage.setItem(STORAGE_KEYS.configurado, 'true');
         salvarDadosLocais();
         irParaAppPrincipal();
@@ -286,29 +283,42 @@
             atualizarEstatisticas();
         }
     }
+    
+    function gerarGrid() {
+        const grid = document.getElementById('numerosGrid');
+        grid.innerHTML = '';
+        numeros.forEach(item => {
+            const btn = document.createElement('button');
+            btn.textContent = item.numero;
+            btn.classList.add('numero-button');
+            if (item.status === 'vendido') {
+                btn.classList.add('numero-vendido');
+                btn.title = `Vendido para: ${item.comprador}`;
+            } else {
+                btn.classList.add('numero-disponivel');
+                btn.title = 'Disponível';
+            }
+            btn.onclick = () => abrirModal(item);
+            grid.appendChild(btn);
+        });
+    }
 
     // ==================================================================
     // LÓGICA DO GOOGLE (AUTENTICAÇÃO E DRIVE)
     // ==================================================================
     window.onload = function() {
-        // Inicializa o cliente de token do Google quando a página carrega
         if (window.google && google.accounts) {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: GOOGLE_CLIENT_ID,
                 scope: DRIVE_SCOPE,
                 callback: tokenCallback,
             });
-        } else {
-            console.error("Google GSI client library not loaded.");
         }
     };
 
     function handleAuthClick() {
-        if (tokenClient) {
-            tokenClient.requestAccessToken({ prompt: 'consent' });
-        } else {
-            showSyncMessage('Erro ao iniciar a autenticação.', true);
-        }
+        if (tokenClient) tokenClient.requestAccessToken({ prompt: 'consent' });
+        else showSyncMessage('Erro ao iniciar a autenticação.', true);
     }
 
     async function tokenCallback(tokenResponse) {
@@ -316,7 +326,6 @@
             googleAccessToken = tokenResponse.access_token;
             await handleSuccessfulAuth();
         } else {
-            console.error("Falha ao obter token:", tokenResponse);
             showSyncMessage('Falha ao obter autorização do Google.', true, 5000);
         }
     }
@@ -328,16 +337,12 @@
         await loadGapiClient();
         gapi.client.setToken({ access_token: googleAccessToken });
         const dadosCarregados = await carregarDadosDoDrive();
-        if (dadosCarregados) {
-            irParaAppPrincipal();
-        } else if (localStorage.getItem(STORAGE_KEYS.configurado)) {
-             // Se não carregou da nuvem, mas já tem dados locais, vai para o app
-             irParaAppPrincipal();
-        }
+        if (dadosCarregados) irParaAppPrincipal();
+        else if (localStorage.getItem(STORAGE_KEYS.configurado)) irParaAppPrincipal();
     }
 
     async function loadGapiClient() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             gapi.load('client', async () => {
                 try {
                     await gapi.client.init({
@@ -345,10 +350,7 @@
                         discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
                     });
                     resolve();
-                } catch (err) {
-                    console.error("Erro ao inicializar GAPI client:", err);
-                    reject(err);
-                }
+                } catch (err) { resolve(); }
             });
         });
     }
@@ -381,27 +383,49 @@
         numeros = numerosSalvos ? JSON.parse(numerosSalvos) : [];
     }
 
-    async function syncWithCloud() {
+    async function syncWithCloud(force = false) {
         if (!googleAccessToken) {
-            showSyncMessage('Conecte com o Google primeiro.', true);
-            handleAuthClick(); // Tenta autenticar
+            if (force) {
+                showSyncMessage('Conecte com o Google primeiro.', true);
+                handleAuthClick();
+            }
             return;
         }
-        showSyncMessage('Sincronizando...');
-        await salvarDadosNoDrive();
+        await salvarDadosNoDrive(force);
     }
     
+    async function getRifaFolderId() {
+        let response = await gapi.client.drive.files.list({
+            q: `mimeType='application/vnd.google-apps.folder' and name='${DRIVE_APP_FOLDER}' and trashed=false`,
+            fields: 'files(id)',
+        });
+        if (response.result.files.length > 0) return response.result.files[0].id;
+        
+        const folderMetadata = { name: DRIVE_APP_FOLDER, mimeType: 'application/vnd.google-apps.folder' };
+        const file = await gapi.client.drive.files.create({ resource: folderMetadata, fields: 'id' });
+        return file.result.id;
+    }
+
     async function carregarDadosDoDrive() {
         showSyncMessage('Buscando dados na nuvem...');
-        if (!googleAccessToken) { showSyncMessage('Não autenticado.', true); return false; }
         try {
-            await procurarArquivoNaPasta();
-            if (!googleDriveFileId) {
+            const folderId = await getRifaFolderId();
+            if (!folderId) throw new Error("Folder not found");
+            
+            const response = await gapi.client.drive.files.list({
+                q: `'${folderId}' in parents and name='${DRIVE_FILE_NAME}' and trashed=false`,
+                fields: 'files(id)',
+            });
+
+            if (response.result.files.length === 0) {
                 showSyncMessage('Nenhum backup encontrado na nuvem.');
                 return false;
             }
-            const response = await gapi.client.drive.files.get({ fileId: googleDriveFileId, alt: 'media' });
-            const data = response.result;
+            googleDriveFileId = response.result.files[0].id;
+
+            const fileResponse = await gapi.client.drive.files.get({ fileId: googleDriveFileId, alt: 'media' });
+            const data = fileResponse.result;
+
             if (data && data.vendedor) {
                 vendedor = data.vendedor;
                 intervaloInicio = data.intervaloInicio;
@@ -421,27 +445,38 @@
         }
         return false;
     }
-    
-    // ... restante das funções do app (grid, modais, etc)
-    function gerarGrid() {
-        const grid = document.getElementById('numerosGrid');
-        grid.innerHTML = '';
-        numeros.forEach(item => {
-            const btn = document.createElement('button');
-            btn.textContent = item.numero;
-            btn.classList.add('numero-button');
-            if (item.status === 'vendido') {
-                btn.classList.add('numero-vendido');
-                btn.title = `Vendido para: ${item.comprador}`;
+
+    async function salvarDadosNoDrive(force = false) {
+        if (!googleAccessToken) return;
+        const dataToSave = { vendedor, intervaloInicio, intervaloFim, numeros, updatedAt: new Date().toISOString() };
+        const dataHash = JSON.stringify(dataToSave);
+        if (dataHash === lastSavedDataHash && !force) return;
+
+        showSyncMessage(force ? 'Forçando sincronização...' : 'Salvando alterações na nuvem...');
+        try {
+            const folderId = await getRifaFolderId();
+            if (!folderId) throw new Error("Could not find or create the app folder.");
+
+            const fileMetadata = { name: DRIVE_FILE_NAME, parents: [folderId] };
+            const media = { mimeType: 'application/json', body: dataHash };
+            
+            if (googleDriveFileId) {
+                await gapi.client.drive.files.update({ fileId: googleDriveFileId, media: media });
             } else {
-                btn.classList.add('numero-disponivel');
-                btn.title = 'Disponível';
+                const response = await gapi.client.drive.files.create({ resource: fileMetadata, media: media, fields: 'id' });
+                googleDriveFileId = response.result.id;
             }
-            btn.onclick = () => abrirModal(item);
-            grid.appendChild(btn);
-        });
+            lastSavedDataHash = dataHash;
+            showSyncMessage('Dados salvos na nuvem com sucesso!');
+        } catch (error) {
+            console.error('Erro ao salvar no Drive:', error);
+            showSyncMessage('Falha ao salvar na nuvem.', true);
+        }
     }
 
+    // ==================================================================
+    // FUNÇÕES DE MODAIS E AÇÕES
+    // ==================================================================
     function atualizarEstatisticas() {
         const vendidos = numeros.filter(n => n.status === 'vendido').length;
         const total = numeros.length;
@@ -459,15 +494,10 @@
         document.getElementById('compradorInput').focus();
     }
     
-    function fecharModal() {
-        esconderModal('numeroModal');
-    }
-
     function salvarNumero() {
         if (!numeroSelecionado) return;
         const comprador = document.getElementById('compradorInput').value.trim();
         if (!comprador) {
-            // Se o comprador for apagado, o número volta a ficar disponível
             numeroSelecionado.status = 'disponivel';
             delete numeroSelecionado.comprador;
             delete numeroSelecionado.telefone;
@@ -476,23 +506,24 @@
             numeroSelecionado.comprador = comprador;
             numeroSelecionado.telefone = document.getElementById('telefoneInput').value.trim();
         }
-        
         fecharModal();
         salvarDadosLocais();
         atualizarUI();
-        syncWithCloud(); // Salva na nuvem após cada alteração
+        syncWithCloud();
     }
     
     function resetarApp() {
         if (confirm('Tem certeza que deseja apagar TODOS os dados? Esta ação não pode ser desfeita.')) {
             localStorage.clear();
-            googleDriveFileId = null; // Para não carregar o backup antigo
+            googleDriveFileId = null;
             window.location.reload();
         }
     }
     
     function mostrarModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function esconderModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function fecharModal() { esconderModal('numeroModal'); }
+    function fecharConfigModal() { esconderModal('configModal'); }
+    function fecharExportModal() { esconderModal('exportModal'); }
     
     function mostrarConfigModal() {
         document.getElementById('vendedorConfigInput').value = vendedor;
@@ -501,125 +532,32 @@
         mostrarModal('configModal');
     }
     
-    function fecharConfigModal() { esconderModal('configModal'); }
-    function fecharExportModal() { esconderModal('exportModal'); }
-    
     function salvarConfiguracoes() {
         vendedor = document.getElementById('vendedorConfigInput').value;
-        // Lógica para alterar o intervalo seria mais complexa, por enquanto só salva o vendedor
         salvarDadosLocais();
         atualizarUI();
         fecharConfigModal();
-        syncWithCloud();
+        syncWithCloud(true);
     }
     
     function exportarDados(method) {
         let texto = `*Relatório da Rifa de ${vendedor}*\n\n`;
         texto += `*Números Vendidos:*\n`;
         const vendidos = numeros.filter(n => n.status === 'vendido');
-        if (vendidos.length === 0) {
-            texto += "Nenhum número vendido ainda.\n";
-        } else {
-            vendidos.forEach(n => {
-                texto += `- Nº ${n.numero}: ${n.comprador} (${n.telefone || 'sem tel'})\n`;
-            });
-        }
+        if (vendidos.length === 0) texto += "Nenhum número vendido ainda.\n";
+        else vendidos.forEach(n => { texto += `- Nº ${n.numero}: ${n.comprador} (${n.telefone || 'sem tel'})\n`; });
         
         texto += `\n*Números Disponíveis:*\n`;
         const disponiveis = numeros.filter(n => n.status === 'disponivel').map(n => n.numero).join(', ');
         texto += disponiveis || "Nenhum.";
 
         if (method === 'share' && navigator.share) {
-            navigator.share({
-                title: `Relatório da Rifa`,
-                text: texto,
-            });
+            navigator.share({ title: `Relatório da Rifa`, text: texto });
         } else {
-            // Fallback para copiar
-            navigator.clipboard.writeText(texto).then(() => {
-                alert('Relatório copiado para a área de transferência!');
-            }).catch(err => {
-                alert('Erro ao copiar o relatório.');
-            });
+            navigator.clipboard.writeText(texto).then(() => { alert('Relatório copiado para a área de transferência!'); });
         }
         fecharExportModal();
     }
-    
-    async function salvarDadosNoDrive() {
-        if (!googleAccessToken) return;
-        const dataToSave = {
-            vendedor,
-            intervaloInicio,
-            intervaloFim,
-            numeros,
-            updatedAt: new Date().toISOString()
-        };
-        const dataHash = JSON.stringify(dataToSave);
-        if (dataHash === lastSavedDataHash) {
-            showSyncMessage('Dados já estão atualizados.');
-            return;
-        }
-
-        showSyncMessage('Salvando na nuvem...');
-        try {
-            await procurarArquivoNaPasta();
-            const fileMetadata = { name: DRIVE_FILE_NAME };
-            const media = { mimeType: 'application/json', body: dataHash };
-            
-            if (googleDriveFileId) {
-                // Atualiza arquivo existente
-                await gapi.client.drive.files.update({
-                    fileId: googleDriveFileId,
-                    media: media
-                });
-            } else {
-                // Cria novo arquivo
-                fileMetadata.parents = [folderId]; // folderId é obtido em procurarArquivoNaPasta
-                const response = await gapi.client.drive.files.create({
-                    resource: fileMetadata,
-                    media: media,
-                    fields: 'id'
-                });
-                googleDriveFileId = response.result.id;
-            }
-            lastSavedDataHash = dataHash;
-            showSyncMessage('Dados salvos na nuvem com sucesso!');
-        } catch (error) {
-            console.error('Erro ao salvar no Drive:', error);
-            showSyncMessage('Falha ao salvar na nuvem.', true);
-        }
-    }
-
-    async function procurarArquivoNaPasta() {
-        let folderId;
-        // 1. Procura pela pasta 'RifaACS_Data'
-        let response = await gapi.client.drive.files.list({
-            q: `mimeType='application/vnd.google-apps.folder' and name='${DRIVE_APP_FOLDER}' and trashed=false`,
-            fields: 'files(id, name)',
-        });
-        
-        if (response.result.files.length > 0) {
-            folderId = response.result.files[0].id;
-        } else {
-            // 2. Se não encontrar, cria a pasta
-            const folderMetadata = { name: DRIVE_APP_FOLDER, mimeType: 'application/vnd.google-apps.folder' };
-            const file = await gapi.client.drive.files.create({ resource: folderMetadata, fields: 'id' });
-            folderId = file.result.id;
-        }
-
-        // 3. Procura pelo arquivo de backup dentro da pasta
-        response = await gapi.client.drive.files.list({
-            q: `'${folderId}' in parents and name='${DRIVE_FILE_NAME}' and trashed=false`,
-            fields: 'files(id, name)',
-        });
-
-        if (response.result.files.length > 0) {
-            googleDriveFileId = response.result.files[0].id;
-        } else {
-            googleDriveFileId = null;
-        }
-    }
-    
     </script>
 </body>
 </html>
