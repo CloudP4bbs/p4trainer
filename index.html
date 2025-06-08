@@ -11,58 +11,58 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js" async defer></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; } [cite: 2]
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6; color: #374151; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; touch-action: manipulation; [cite_start]}
-        .container { min-height: 100vh; display: flex; flex-direction: column; } [cite: 4]
-        .setup-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; min-height: 100vh; [cite_start]}
-        .logo-container { text-align: center; margin-bottom: 40px; } [cite: 7]
-        .app-icon { width: 80px; height: 80px; background: #3B82F6; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 40px; color: white; [cite_start]}
-        .app-title { font-size: 32px; font-weight: bold; color: #374151; margin-bottom: 8px; } [cite: 9]
-        .app-subtitle { font-size: 16px; color: #6B7280; [cite_start]}
-        .form-container { width: 100%; max-width: 400px; background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); } [cite: 11, 12]
-        .label { font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; margin-top: 16px; display: block; [cite_start]}
-        .input { width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 12px; font-size: 16px; background: white; color: #374151; -webkit-appearance: none; appearance: none; } [cite: 14, 15]
-        .input:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); [cite_start]}
-        .row { display: flex; gap: 12px; } [cite: 18]
-        .half-input { flex: 1; [cite_start]}
-        .primary-button { width: 100%; background: #3B82F6; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 500; margin-top: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; -webkit-tap-highlight-color: transparent; } [cite: 20, 21]
-        .primary-button:hover:not(:disabled) { background: #2563EB; [cite_start]}
-        .primary-button:disabled { background: #D1D5DB; cursor: not-allowed; } [cite: 23]
-        .header { background: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; [cite_start]}
-        .header-left { display: flex; align-items: center; gap: 12px; } [cite: 26]
-        .header-icon { width: 40px; height: 40px; background: #3B82F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; [cite_start]}
-        .header-title { font-size: 20px; font-weight: bold; color: #374151; } [cite: 28]
-        .header-subtitle { font-size: 14px; color: #6B7280; [cite_start]}
-        .header-buttons { display: flex; gap: 8px; } [cite: 30]
-        .header-button { width: 40px; height: 40px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; [cite_start]}
-        .header-button:hover { opacity: 0.9; } [cite: 33]
-        .content { flex: 1; padding: 16px; overflow-y: auto; [cite_start]}
-        .stats-container { display: flex; gap: 12px; margin-bottom: 24px; } [cite: 35]
-        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); [cite_start]}
-        .stat-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; } [cite: 37]
-        .stat-label { font-size: 12px; color: #6B7280; [cite_start]}
-        .grid-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); } [cite: 39]
-        .grid-row { display: flex; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; [cite_start]}
-        .numero-button { width: 50px; height: 50px; margin: 4px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; } [cite: 41, 42]
-        .numero-disponivel { background: white; border-color: #D1D5DB; color: #374151; [cite_start]}
-        .numero-disponivel:hover { border-color: #3B82F6; background: #F3F4F6; } [cite: 44]
-        .numero-vendido { background: #10B981; border-color: #059669; color: white; [cite_start]}
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; } [cite: 46, 47]
-        .modal-container { background: white; border-radius: 16px; width: 100%; max-width: 400px; max-height: 80vh; overflow: hidden; [cite_start]}
-        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #E5E7EB; } [cite: 49]
-        .modal-title { font-size: 20px; font-weight: bold; color: #374151; [cite_start]}
-        .close-button { width: 32px; height: 32px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #374151; border-radius: 4px; -webkit-tap-highlight-color: transparent; } [cite: 51, 52]
-        .close-button:hover { background: #F3F4F6; [cite_start]}
-        .modal-content { padding: 20px; overflow-y: auto; } [cite: 54]
-        .hidden { display: none !important; [cite_start]}
-        .auto-save-indicator { position: fixed; bottom: 20px; right: 20px; background: #10B981; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 1001; } [cite: 56, 57]
-        .auto-save-indicator.show { opacity: 1; [cite_start]}
-        .google-btn { background-color: #4285F4; color: white; margin-top: 16px; } [cite: 59]
-        .google-btn:hover { background-color: #357ae8; [cite_start]}
-        .google-icon { width: 20px; height: 20px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; } [cite: 61]
-        .sync-status { font-size: 12px; text-align: center; color: #6B7280; margin-top: 16px; [cite_start]}
-        .sync-status.connected { color: #10B981; } [cite: 63]
-        @media screen and (-webkit-min-device-pixel-ratio: 0) { select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"] { font-size: 16px; [cite_start]} }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6; color: #374151; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; touch-action: manipulation; }
+        .container { min-height: 100vh; display: flex; flex-direction: column; }
+        .setup-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; min-height: 100vh; }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .app-icon { width: 80px; height: 80px; background: #3B82F6; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 40px; color: white; }
+        .app-title { font-size: 32px; font-weight: bold; color: #374151; margin-bottom: 8px; }
+        .app-subtitle { font-size: 16px; color: #6B7280; }
+        .form-container { width: 100%; max-width: 400px; background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .label { font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; margin-top: 16px; display: block; }
+        .input { width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 12px; font-size: 16px; background: white; color: #374151; -webkit-appearance: none; appearance: none; }
+        .input:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .row { display: flex; gap: 12px; }
+        .half-input { flex: 1; }
+        .primary-button { width: 100%; background: #3B82F6; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 500; margin-top: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .primary-button:hover:not(:disabled) { background: #2563EB; }
+        .primary-button:disabled { background: #D1D5DB; cursor: not-allowed; }
+        .header { background: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-icon { width: 40px; height: 40px; background: #3B82F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+        .header-title { font-size: 20px; font-weight: bold; color: #374151; }
+        .header-subtitle { font-size: 14px; color: #6B7280; }
+        .header-buttons { display: flex; gap: 8px; }
+        .header-button { width: 40px; height: 40px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; }
+        .header-button:hover { opacity: 0.9; }
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+        .stats-container { display: flex; gap: 12px; margin-bottom: 24px; }
+        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .stat-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: #6B7280; }
+        .grid-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .grid-row { display: flex; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+        .numero-button { width: 50px; height: 50px; margin: 4px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        .numero-disponivel { background: white; border-color: #D1D5DB; color: #374151; }
+        .numero-disponivel:hover { border-color: #3B82F6; background: #F3F4F6; }
+        .numero-vendido { background: #10B981; border-color: #059669; color: white; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
+        .modal-container { background: white; border-radius: 16px; width: 100%; max-width: 400px; max-height: 80vh; overflow: hidden; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #E5E7EB; }
+        .modal-title { font-size: 20px; font-weight: bold; color: #374151; }
+        .close-button { width: 32px; height: 32px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #374151; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
+        .close-button:hover { background: #F3F4F6; }
+        .modal-content { padding: 20px; overflow-y: auto; }
+        .hidden { display: none !important; }
+        .auto-save-indicator { position: fixed; bottom: 20px; right: 20px; background: #10B981; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 1001; }
+        .auto-save-indicator.show { opacity: 1; }
+        .google-btn { background-color: #4285F4; color: white; margin-top: 16px; }
+        .google-btn:hover { background-color: #357ae8; }
+        .google-icon { width: 20px; height: 20px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .sync-status { font-size: 12px; text-align: center; color: #6B7280; margin-top: 16px; }
+        .sync-status.connected { color: #10B981; }
+        @media screen and (-webkit-min-device-pixel-ratio: 0) { select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"] { font-size: 16px; } }
         @media (max-width: 480px) { .form-container { margin: 0 10px; padding: 20px; } .numero-button { width: 45px; height: 45px; } .stats-container { flex-direction: column; gap: 8px; } .stat-card { padding: 16px; } }
     </style>
 </head>
@@ -225,6 +225,10 @@
         let googleTokenClient;
         let googleAccessToken;
         let googleDriveFileId = null;
+        let lastSavedDataHash = '';
+        let saveTimeout = null;
+        let saveInProgress = false;
+
         const STORAGE_KEYS = {
             vendedor: 'rifaacs_vendedor',
             intervaloInicio: 'rifaacs_inicio',
@@ -232,21 +236,63 @@
             numeros: 'rifaacs_numeros',
             configurado: 'rifaacs_configurado'
         };
+
+        // Função para gerar um hash simples dos dados atuais
+        function getDataHash() {
+            const dataToHash = { vendedor, intervaloInicio, intervaloFim, numeros };
+            return JSON.stringify(dataToHash);
+        }
+
+        // Verifica se os dados foram modificados desde o último salvamento
+        function hasDataChanged() {
+            return getDataHash() !== lastSavedDataHash;
+        }
+
+        // Sistema de debounce para evitar múltiplos salvamentos consecutivos
+        async function debouncedSave() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            
+            // Salvamento imediato se os dados foram modificados
+            if (hasDataChanged()) {
+                await salvarDados();
+            }
+            
+            // Configura o próximo salvamento periódico
+            saveTimeout = setTimeout(() => {
+                debouncedSave();
+            }, 10000); // 10 segundos
+        }
+
         async function salvarDados() {
+            if (saveInProgress) return;
+            saveInProgress = true;
+            
             try {
+                const currentDataHash = getDataHash();
+                if (currentDataHash === lastSavedDataHash) {
+                    saveInProgress = false;
+                    return;
+                }
+
+                // Salva localmente
                 localStorage.setItem(STORAGE_KEYS.vendedor, vendedor);
                 localStorage.setItem(STORAGE_KEYS.intervaloInicio, intervaloInicio.toString());
                 localStorage.setItem(STORAGE_KEYS.intervaloFim, intervaloFim.toString());
                 localStorage.setItem(STORAGE_KEYS.numeros, JSON.stringify(numeros));
                 localStorage.setItem(STORAGE_KEYS.configurado, 'true');
+                
                 mostrarIndicadorSalvamento('local');
                 
+                // Salva na nuvem se estiver conectado
                 if (googleAccessToken) {
                     await salvarDadosNoDrive();
                 }
 
+                lastSavedDataHash = currentDataHash;
             } catch (e) {
                 console.warn('Não foi possível salvar os dados:', e);
+            } finally {
+                saveInProgress = false;
             }
         }
         
@@ -258,6 +304,7 @@
                     intervaloInicio = dadosDrive.intervaloInicio;
                     intervaloFim = dadosDrive.intervaloFim;
                     numeros = dadosDrive.numeros;
+                    lastSavedDataHash = getDataHash();
                     return true;
                 }
             }
@@ -273,6 +320,7 @@
                 if (numerosData) {
                     numeros = JSON.parse(numerosData);
                 }
+                lastSavedDataHash = getDataHash();
                 return true;
             } catch (e) {
                 console.warn('Erro ao carregar dados locais:', e);
@@ -280,11 +328,16 @@
             }
         }
 
-        function limparDados() {
+        function limparDadosLocais() {
             try {
                 Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+                numeros = [];
+                vendedor = '';
+                intervaloInicio = 101;
+                intervaloFim = 200;
+                lastSavedDataHash = getDataHash();
             } catch (e) {
-                console.warn('Erro ao limpar dados:', e);
+                console.warn('Erro ao limpar dados locais:', e);
             }
         }
 
@@ -310,17 +363,16 @@
             vendedorInput.addEventListener('input', () => {
                 comecarBtn.disabled = !vendedorInput.value.trim();
             });
- 
             comecarBtn.addEventListener('click', inicializarApp);
             
             document.getElementById('exportBtn').addEventListener('click', () => mostrarModal('exportModal'));
             document.getElementById('configBtn').addEventListener('click', mostrarConfigModal);
             document.getElementById('resetBtn').addEventListener('click', resetarApp);
             document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
-            window.addEventListener('beforeunload', salvarDados);
-         
-            // setInterval(salvarDados, 10000);
-            // });
+            
+            // Inicia o sistema de salvamento automático
+            debouncedSave();
+        });
 
         // --- Funções de Integração Google ---
 
@@ -356,23 +408,20 @@
 
                 document.getElementById('syncStatus').textContent = 'Conectado. Sincronizando...';
                 document.getElementById('syncStatus').classList.add('connected');
-      
                 document.getElementById('googleSignInBtn').textContent = 'Reconectar com Google';
 
                 const dadosCarregados = await carregarDados();
                 if (dadosCarregados && vendedor) {
                     alert('Dados da nuvem carregados com sucesso!');
                     irParaAppPrincipal();
- 
                 } else {
                     alert('Nenhum backup encontrado. Preencha os campos para criar uma nova rifa.');
                     const dadosLocaisCarregados = await carregarDados(); // Tenta carregar local
                     if (dadosLocaisCarregados && vendedor) {
- 
-                        irParaAppPrincipal();
-                    } [cite: 124]
+                         irParaAppPrincipal();
+                    }
                 }
-            [cite_start]});
+            });
         }
         
         async function getOrCreateAppFolderId() {
@@ -400,7 +449,9 @@
         }
 
         async function salvarDadosNoDrive() {
-            if (!gapi.client.drive) return;
+            if (!gapi.client.drive || saveInProgress) return;
+            saveInProgress = true;
+            
             try {
                 const folderId = await getOrCreateAppFolderId();
                 if(!googleDriveFileId) {
@@ -424,11 +475,14 @@
                 }
                 const multipartRequestBody = delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/json\r\n\r\n' + fileContent + close_delim;
                 const response = await gapi.client.request({ path, method, params: {'uploadType': 'multipart'}, headers: {'Content-Type': `multipart/related; boundary="${boundary}"`}, body: multipartRequestBody });
+                
                 if (!googleDriveFileId) googleDriveFileId = response.result.id;
                 console.log('Dados salvos no Drive:', response.result);
                 mostrarIndicadorSalvamento('nuvem');
             } catch (error) {
                 console.error('Erro ao salvar no Google Drive:', error);
+            } finally {
+                saveInProgress = false;
             }
         }
 
@@ -528,7 +582,7 @@
             fecharModal();
             atualizarGrid();
             atualizarEstatisticas();
-            salvarDados();
+            salvarDados(); // Dispara salvamento imediato após modificação
         }
 
         function mostrarConfigModal() {
@@ -557,18 +611,24 @@
                     vendedor = novoVendedor;
                 }
                 document.getElementById('vendedorHeader').textContent = `Vendedor: ${vendedor}`;
-                salvarDados();
+                salvarDados(); // Dispara salvamento imediato após modificação
             }
             fecharConfigModal();
         }
 
-        // function resetarApp() {
-            if (confirm('Tem certeza que deseja resetar a aplicação? Esta ação limpará os dados locais e retornará à tela de configuração inicial, mas não afetará seu backup na nuvem.')) {
-                limparDados(); // Limpa apenas o localStorage
-                location.reload(); // Recarrega a página para voltar à tela de setup
+        function resetarApp() {
+            if (confirm('Tem certeza que deseja voltar para a tela inicial? Os dados locais serão limpos, mas os backups na nuvem não serão afetados.')) {
+                limparDadosLocais();
+                document.getElementById('setupScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+                document.getElementById('vendedorInput').value = '';
+                document.getElementById('inicioInput').value = 101;
+                document.getElementById('fimInput').value = 200;
+                document.getElementById('comecarBtn').disabled = true;
             }
         }
-        // function exportarDados() {
+
+        function exportarDados() {
             const vendidos = numeros.filter(n => n.vendido);
             let conteudo = `RELATÓRIO DE RIFA - ${vendedor}\n`;
             conteudo += `Data: ${new Date().toLocaleDateString('pt-BR')}\n`;
@@ -590,10 +650,10 @@
             fecharExportModal();
         }
 
-        function mostrarModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); } [cite: 183]
-        function fecharModal() { document.getElementById('numeroModal').classList.add('hidden'); numeroSelecionado = null; [cite_start]}
-        function fecharConfigModal() { document.getElementById('configModal').classList.add('hidden'); } [cite: 185]
-        function fecharExportModal() { document.getElementById('exportModal').classList.add('hidden'); [cite_start]}
+        function mostrarModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
+        function fecharModal() { document.getElementById('numeroModal').classList.add('hidden'); numeroSelecionado = null; }
+        function fecharConfigModal() { document.getElementById('configModal').classList.add('hidden'); }
+        function fecharExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
         document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) { e.target.classList.add('hidden'); } });
     </script>
 </body>
