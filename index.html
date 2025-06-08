@@ -71,13 +71,13 @@
 </head>
 <body>
     <div class="container">
+        <!-- TELA DE SETUP -->
         <div id="setupScreen" class="setup-container">
             <div class="logo-container">
                 <div class="app-icon">📊</div>
                 <div class="app-title">RifaACS</div>
                 <div class="app-subtitle">Gerenciador de Rifas</div>
             </div>
-
             <div class="form-container">
                 <p style="text-align: center; font-size: 14px; color: #6B7280; margin-bottom: 20px;">
                     Conecte sua conta Google para salvar seus dados na nuvem e acessá-los de qualquer lugar.
@@ -90,10 +90,8 @@
                 </button>
                 <div id="syncStatus" class="sync-status">Não conectado</div>
                 <hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;">
-                
                 <label class="label">Nome do Vendedor</label>
                 <input type="text" id="vendedorInput" class="input" placeholder="Digite seu nome">
-
                 <div class="row">
                     <div class="half-input">
                         <label class="label">Número Inicial</label>
@@ -104,252 +102,524 @@
                         <input type="number" id="fimInput" class="input" value="200">
                     </div>
                 </div>
-
-                <button id="comecarBtn" class="primary-button" disabled>
-                    Começar
-                </button>
+                <button id="comecarBtn" class="primary-button" disabled>Começar</button>
             </div>
         </div>
 
+        <!-- TELA PRINCIPAL DO APP -->
         <div id="mainApp" class="hidden">
-            <!-- O restante da sua interface principal permanece aqui -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-icon">📊</div>
+                    <div>
+                        <div class="header-title">RifaACS</div>
+                        <div class="header-subtitle" id="vendedorHeader">Vendedor: </div>
+                    </div>
+                </div>
+                <div class="header-buttons">
+                    <button id="syncBtn" class="header-button" style="background: #3B82F6;" title="Sincronizar com a nuvem">🔄</button>
+                    <button id="exportBtn" class="header-button" style="background: #10B981;" title="Exportar dados">📄</button>
+                    <button id="configBtn" class="header-button" style="background: #3B82F6;" title="Configurações">⚙️</button>
+                    <button id="resetBtn" class="header-button" style="background: #EF4444;" title="Resetar aplicativo">🗑️</button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #10B981;" id="vendidosCount">0</div>
+                        <div class="stat-label">Vendidos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #3B82F6;" id="disponiveisCount">0</div>
+                        <div class="stat-label">Disponíveis</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #374151;" id="totalCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                </div>
+                <div class="grid-container">
+                    <div id="numerosGrid"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modais e indicadores permanecem os mesmos -->
+    <!-- INDICADORES E MODAIS -->
+    <div id="autoSaveIndicator" class="auto-save-indicator">💾 Dados salvos automaticamente</div>
+    <div id="syncIndicator" class="sync-indicator"><span id="syncMessage"></span></div>
+    <div id="numeroModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title" id="numeroModalTitle">Número</div>
+                <button class="close-button" onclick="fecharModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <label class="label">Comprador</label>
+                <input type="text" id="compradorInput" class="input" placeholder="Nome do comprador">
+                <label class="label">Telefone</label>
+                <input type="tel" id="telefoneInput" class="input" placeholder="(00) 00000-0000">
+                <button id="salvarBtn" class="primary-button">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
+    <div id="configModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">Configurações</div>
+                <button class="close-button" onclick="fecharConfigModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <label class="label">Nome do Vendedor</label>
+                <input type="text" id="vendedorConfigInput" class="input" placeholder="Digite seu nome">
+                <div class="row">
+                    <div class="half-input">
+                        <label class="label">Número Inicial</label>
+                        <input type="number" id="inicioConfigInput" class="input">
+                    </div>
+                    <div class="half-input">
+                        <label class="label">Número Final</label>
+                        <input type="number" id="fimConfigInput" class="input">
+                    </div>
+                </div>
+                <button onclick="salvarConfiguracoes()" class="primary-button">Salvar Configurações</button>
+            </div>
+        </div>
+    </div>
+    <div id="exportModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">Exportar Dados</div>
+                <button class="close-button" onclick="fecharExportModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <button onclick="exportarDados('share')" class="primary-button" style="background: #3B82F6;">📤 Compartilhar Relatório</button>
+                <button onclick="exportarDados('copy')" class="primary-button" style="margin-top: 12px; background: #6B7280;">📋 Copiar para Área de Transferência</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // ==================================================================
-        // CONFIGURAÇÃO GOOGLE - ATUALIZADO
-        // ==================================================================
-        const GOOGLE_CLIENT_ID = '469226201678-rf8qdoccbhv1j56dldtga4fnbrqtnvrh.apps.googleusercontent.com';
-        const GOOGLE_API_KEY = 'AIzaSyBHgoFJVRAW-mg4kVJDoOY9-LhLBC4jKVo'; // Mantenha sua API Key
-        const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-        const DRIVE_APP_FOLDER = 'RifaACS_Data';
-        const DRIVE_FILE_NAME = 'rifaacs_backup.json';
-        // ==================================================================
+    // ==================================================================
+    // VARIÁVEIS GLOBAIS E CONFIGURAÇÃO
+    // ==================================================================
+    const GOOGLE_CLIENT_ID = '469226201678-rf8qdoccbhv1j56dldtga4fnbrqtnvrh.apps.googleusercontent.com';
+    const GOOGLE_API_KEY = 'AIzaSyBHgoFJVRAW-mg4kVJDoOY9-LhLBC4jKVo';
+    const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+    const DRIVE_APP_FOLDER = 'RifaACS_Data';
+    const DRIVE_FILE_NAME = 'rifaacs_backup.json';
 
-        let vendedor = '';
-        let intervaloInicio = 101;
-        let intervaloFim = 200;
-        let numeros = [];
-        let numeroSelecionado = null;
-        
-        let tokenClient; // Novo cliente de token do Google
-        let googleAccessToken = null;
-        let googleDriveFileId = null;
-        let lastSavedDataHash = '';
-        let saveTimeout = null;
-        let saveInProgress = false;
-        let syncInterval;
+    let vendedor = '';
+    let intervaloInicio = 101;
+    let intervaloFim = 200;
+    let numeros = [];
+    let numeroSelecionado = null;
+    let tokenClient;
+    let googleAccessToken = null;
+    let googleDriveFileId = null;
+    let lastSavedDataHash = '';
+    let saveTimeout = null;
 
-        // Função para mostrar mensagens de sincronização
-        function showSyncMessage(message, isError = false, duration = 3000) {
-            const indicator = document.getElementById('syncIndicator');
-            const messageEl = document.getElementById('syncMessage');
-            indicator.className = 'sync-indicator'; // Reseta classes
-            if (isError) {
-                indicator.classList.add('error');
-            }
-            messageEl.textContent = message;
-            indicator.classList.add('show');
-            
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, duration);
+    const STORAGE_KEYS = {
+        vendedor: 'rifaacs_vendedor',
+        intervaloInicio: 'rifaacs_inicio',
+        intervaloFim: 'rifaacs_fim',
+        numeros: 'rifaacs_numeros',
+        configurado: 'rifaacs_configurado'
+    };
+
+    // ==================================================================
+    // LÓGICA DE INICIALIZAÇÃO E UI
+    // ==================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Event Listeners ---
+        document.getElementById('googleSignInBtn').addEventListener('click', handleAuthClick);
+        const vendedorInput = document.getElementById('vendedorInput');
+        const comecarBtn = document.getElementById('comecarBtn');
+        vendedorInput.addEventListener('input', () => {
+            comecarBtn.disabled = !vendedorInput.value.trim();
+        });
+        comecarBtn.addEventListener('click', inicializarApp);
+        document.getElementById('exportBtn').addEventListener('click', () => mostrarModal('exportModal'));
+        document.getElementById('configBtn').addEventListener('click', mostrarConfigModal);
+        document.getElementById('resetBtn').addEventListener('click', resetarApp);
+        document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
+        document.getElementById('syncBtn').addEventListener('click', syncWithCloud);
+
+        // --- Carregar dados salvos ---
+        if (localStorage.getItem(STORAGE_KEYS.configurado)) {
+            carregarDadosLocais();
+            irParaAppPrincipal();
+        }
+    });
+
+    function inicializarApp() {
+        vendedor = document.getElementById('vendedorInput').value.trim();
+        intervaloInicio = parseInt(document.getElementById('inicioInput').value) || 1;
+        intervaloFim = parseInt(document.getElementById('fimInput').value) || 100;
+
+        if (!vendedor) {
+            alert("Por favor, digite o nome do vendedor.");
+            return;
         }
 
-        // ==================================================================
-        // NOVA LÓGICA DE AUTENTICAÇÃO GOOGLE (GIS)
-        // ==================================================================
+        numeros = [];
+        for (let i = intervaloInicio; i <= intervaloFim; i++) {
+            numeros.push({ numero: i, status: 'disponivel' });
+        }
 
-        // Função chamada quando a biblioteca do Google GSI está pronta
-        function onGoogleGsiLoaded() {
+        localStorage.setItem(STORAGE_KEYS.configurado, 'true');
+        salvarDadosLocais();
+        irParaAppPrincipal();
+    }
+
+    function irParaAppPrincipal() {
+        document.getElementById('setupScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        atualizarUI();
+    }
+
+    function atualizarUI() {
+        if (!document.getElementById('mainApp').classList.contains('hidden')) {
+            document.getElementById('vendedorHeader').textContent = `Vendedor: ${vendedor}`;
+            gerarGrid();
+            atualizarEstatisticas();
+        }
+    }
+
+    // ==================================================================
+    // LÓGICA DO GOOGLE (AUTENTICAÇÃO E DRIVE)
+    // ==================================================================
+    window.onload = function() {
+        // Inicializa o cliente de token do Google quando a página carrega
+        if (window.google && google.accounts) {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: GOOGLE_CLIENT_ID,
                 scope: DRIVE_SCOPE,
-                callback: tokenCallback, // Função chamada após o usuário autorizar
+                callback: tokenCallback,
             });
+        } else {
+            console.error("Google GSI client library not loaded.");
         }
+    };
 
-        // Callback que recebe o token de acesso
-        async function tokenCallback(tokenResponse) {
-            if (tokenResponse && tokenResponse.access_token) {
-                googleAccessToken = tokenResponse.access_token;
-                await handleSuccessfulAuth();
-            } else {
-                console.error("Erro na resposta do token:", tokenResponse);
-                showSyncMessage('Falha ao obter autorização do Google.', true, 5000);
-            }
-        }
-
-        // Função para iniciar o processo de login/autorização
-        function handleAuthClick() {
-            if (!tokenClient) {
-                showSyncMessage('A biblioteca do Google ainda não carregou. Tente novamente em alguns segundos.', true, 5000);
-                return;
-            }
-
-            // Se já temos um token, podemos tentar usá-lo ou pedir um novo.
-            // Para garantir que o usuário está conectado, pedimos o token novamente.
-            // O `prompt` vazio tentará um login silencioso se possível.
+    function handleAuthClick() {
+        if (tokenClient) {
             tokenClient.requestAccessToken({ prompt: 'consent' });
+        } else {
+            showSyncMessage('Erro ao iniciar a autenticação.', true);
         }
+    }
 
-        // Função chamada após autenticação bem-sucedida
-        async function handleSuccessfulAuth() {
-            document.getElementById('syncStatus').textContent = 'Conectado. Sincronizando...';
-            document.getElementById('syncStatus').classList.add('connected');
-            document.getElementById('googleSignInBtn').textContent = 'Reconectar com Google';
-            showSyncMessage('Autenticado com sucesso!');
-
-            // Carrega o cliente da API do Google Drive
-            await loadGapiClient();
-
-            // Seta o token para as chamadas da GAPI
-            gapi.client.setToken({ access_token: googleAccessToken });
-
-            const dadosCarregados = await carregarDadosDoDrive(); // Renomeado para clareza
-            if (dadosCarregados && vendedor) {
-                irParaAppPrincipal();
-            } else if (dadosCarregados) {
-                 document.getElementById('syncStatus').textContent = 'Conectado. Preencha os dados para começar.';
-            } else {
-                 document.getElementById('syncStatus').textContent = 'Conectado (sem dados salvos)';
-            }
-            
-            // Inicia a sincronização automática
-            startAutoSync(); 
+    async function tokenCallback(tokenResponse) {
+        if (tokenResponse && tokenResponse.access_token) {
+            googleAccessToken = tokenResponse.access_token;
+            await handleSuccessfulAuth();
+        } else {
+            console.error("Falha ao obter token:", tokenResponse);
+            showSyncMessage('Falha ao obter autorização do Google.', true, 5000);
         }
+    }
 
-        // Função para carregar o cliente da API GAPI (necessário para o Drive)
-        async function loadGapiClient() {
-            return new Promise((resolve, reject) => {
-                gapi.load('client', async () => {
-                    try {
-                        await gapi.client.init({
-                            apiKey: GOOGLE_API_KEY,
-                            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-                        });
-                        resolve();
-                    } catch (err) {
-                        console.error("Erro ao inicializar GAPI client:", err);
-                        reject(err);
-                    }
-                });
+    async function handleSuccessfulAuth() {
+        document.getElementById('syncStatus').textContent = 'Conectado. Sincronizando...';
+        document.getElementById('syncStatus').classList.add('connected');
+        showSyncMessage('Autenticado com sucesso!');
+        await loadGapiClient();
+        gapi.client.setToken({ access_token: googleAccessToken });
+        const dadosCarregados = await carregarDadosDoDrive();
+        if (dadosCarregados) {
+            irParaAppPrincipal();
+        } else if (localStorage.getItem(STORAGE_KEYS.configurado)) {
+             // Se não carregou da nuvem, mas já tem dados locais, vai para o app
+             irParaAppPrincipal();
+        }
+    }
+
+    async function loadGapiClient() {
+        return new Promise((resolve, reject) => {
+            gapi.load('client', async () => {
+                try {
+                    await gapi.client.init({
+                        apiKey: GOOGLE_API_KEY,
+                        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+                    });
+                    resolve();
+                } catch (err) {
+                    console.error("Erro ao inicializar GAPI client:", err);
+                    reject(err);
+                }
             });
+        });
+    }
+
+    function showSyncMessage(message, isError = false, duration = 3000) {
+        const indicator = document.getElementById('syncIndicator');
+        const messageEl = document.getElementById('syncMessage');
+        indicator.className = 'sync-indicator';
+        if (isError) indicator.classList.add('error');
+        messageEl.textContent = message;
+        indicator.classList.add('show');
+        setTimeout(() => indicator.classList.remove('show'), duration);
+    }
+    
+    // ==================================================================
+    // FUNÇÕES DE DADOS (LOCAL E NUVEM)
+    // ==================================================================
+    function salvarDadosLocais() {
+        localStorage.setItem(STORAGE_KEYS.vendedor, vendedor);
+        localStorage.setItem(STORAGE_KEYS.intervaloInicio, intervaloInicio);
+        localStorage.setItem(STORAGE_KEYS.intervaloFim, intervaloFim);
+        localStorage.setItem(STORAGE_KEYS.numeros, JSON.stringify(numeros));
+    }
+
+    function carregarDadosLocais() {
+        vendedor = localStorage.getItem(STORAGE_KEYS.vendedor) || 'Vendedor';
+        intervaloInicio = parseInt(localStorage.getItem(STORAGE_KEYS.intervaloInicio)) || 1;
+        intervaloFim = parseInt(localStorage.getItem(STORAGE_KEYS.intervaloFim)) || 100;
+        const numerosSalvos = localStorage.getItem(STORAGE_KEYS.numeros);
+        numeros = numerosSalvos ? JSON.parse(numerosSalvos) : [];
+    }
+
+    async function syncWithCloud() {
+        if (!googleAccessToken) {
+            showSyncMessage('Conecte com o Google primeiro.', true);
+            handleAuthClick(); // Tenta autenticar
+            return;
         }
-       
-        // ==================================================================
-        // LÓGICA DO GOOGLE DRIVE (busca e salvamento de arquivos)
-        // ==================================================================
-
-        // ... A lógica para `carregarDadosDoDrive`, `salvarDadosNoDrive`, `procurarArquivoNaPasta`, etc.
-        // permanece praticamente a mesma, pois ela já usa a biblioteca `gapi.client` que configuramos acima.
-        // Apenas ajustamos os nomes e garantimos que o token é setado antes.
-
-        async function carregarDadosDoDrive() {
-            showSyncMessage('Buscando dados na nuvem...');
-            if (!googleAccessToken) {
-                showSyncMessage('Não autenticado.', true);
+        showSyncMessage('Sincronizando...');
+        await salvarDadosNoDrive();
+    }
+    
+    async function carregarDadosDoDrive() {
+        showSyncMessage('Buscando dados na nuvem...');
+        if (!googleAccessToken) { showSyncMessage('Não autenticado.', true); return false; }
+        try {
+            await procurarArquivoNaPasta();
+            if (!googleDriveFileId) {
+                showSyncMessage('Nenhum backup encontrado na nuvem.');
                 return false;
             }
-
-            try {
-                await procurarArquivoNaPasta();
-                if (!googleDriveFileId) {
-                    showSyncMessage('Nenhum backup encontrado na nuvem.');
-                    carregarDadosLocais(); // Carrega local se não achar na nuvem
-                    return false;
-                }
-
-                const response = await gapi.client.drive.files.get({
-                    fileId: googleDriveFileId,
-                    alt: 'media'
-                });
-
-                const data = response.result;
-                if (data && data.vendedor) {
-                    vendedor = data.vendedor;
-                    intervaloInicio = data.intervaloInicio;
-                    intervaloFim = data.intervaloFim;
-                    numeros = data.numeros;
-                    lastSavedDataHash = JSON.stringify(data);
-                    
-                    salvarDadosLocais();
-                    atualizarUI();
-                    showSyncMessage('Dados carregados da nuvem!');
-                    return true;
-                }
-            } catch (err) {
-                console.error("Erro ao carregar dados do Drive: ", err);
-                showSyncMessage('Erro ao carregar da nuvem. Usando dados locais.', true);
-                carregarDadosLocais();
+            const response = await gapi.client.drive.files.get({ fileId: googleDriveFileId, alt: 'media' });
+            const data = response.result;
+            if (data && data.vendedor) {
+                vendedor = data.vendedor;
+                intervaloInicio = data.intervaloInicio;
+                intervaloFim = data.intervaloFim;
+                numeros = data.numeros;
+                lastSavedDataHash = JSON.stringify(data);
+                
+                salvarDadosLocais();
+                localStorage.setItem(STORAGE_KEYS.configurado, 'true');
+                atualizarUI();
+                showSyncMessage('Dados carregados da nuvem!');
+                return true;
             }
-            return false;
+        } catch (err) {
+            console.error("Erro ao carregar dados do Drive: ", err);
+            showSyncMessage('Erro ao carregar da nuvem.', true);
+        }
+        return false;
+    }
+    
+    // ... restante das funções do app (grid, modais, etc)
+    function gerarGrid() {
+        const grid = document.getElementById('numerosGrid');
+        grid.innerHTML = '';
+        numeros.forEach(item => {
+            const btn = document.createElement('button');
+            btn.textContent = item.numero;
+            btn.classList.add('numero-button');
+            if (item.status === 'vendido') {
+                btn.classList.add('numero-vendido');
+                btn.title = `Vendido para: ${item.comprador}`;
+            } else {
+                btn.classList.add('numero-disponivel');
+                btn.title = 'Disponível';
+            }
+            btn.onclick = () => abrirModal(item);
+            grid.appendChild(btn);
+        });
+    }
+
+    function atualizarEstatisticas() {
+        const vendidos = numeros.filter(n => n.status === 'vendido').length;
+        const total = numeros.length;
+        document.getElementById('vendidosCount').textContent = vendidos;
+        document.getElementById('disponiveisCount').textContent = total - vendidos;
+        document.getElementById('totalCount').textContent = total;
+    }
+
+    function abrirModal(item) {
+        numeroSelecionado = item;
+        document.getElementById('numeroModalTitle').textContent = `Número ${item.numero}`;
+        document.getElementById('compradorInput').value = item.comprador || '';
+        document.getElementById('telefoneInput').value = item.telefone || '';
+        mostrarModal('numeroModal');
+        document.getElementById('compradorInput').focus();
+    }
+    
+    function fecharModal() {
+        esconderModal('numeroModal');
+    }
+
+    function salvarNumero() {
+        if (!numeroSelecionado) return;
+        const comprador = document.getElementById('compradorInput').value.trim();
+        if (!comprador) {
+            // Se o comprador for apagado, o número volta a ficar disponível
+            numeroSelecionado.status = 'disponivel';
+            delete numeroSelecionado.comprador;
+            delete numeroSelecionado.telefone;
+        } else {
+            numeroSelecionado.status = 'vendido';
+            numeroSelecionado.comprador = comprador;
+            numeroSelecionado.telefone = document.getElementById('telefoneInput').value.trim();
+        }
+        
+        fecharModal();
+        salvarDadosLocais();
+        atualizarUI();
+        syncWithCloud(); // Salva na nuvem após cada alteração
+    }
+    
+    function resetarApp() {
+        if (confirm('Tem certeza que deseja apagar TODOS os dados? Esta ação não pode ser desfeita.')) {
+            localStorage.clear();
+            googleDriveFileId = null; // Para não carregar o backup antigo
+            window.location.reload();
+        }
+    }
+    
+    function mostrarModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function esconderModal(id) { document.getElementById(id).classList.add('hidden'); }
+    
+    function mostrarConfigModal() {
+        document.getElementById('vendedorConfigInput').value = vendedor;
+        document.getElementById('inicioConfigInput').value = intervaloInicio;
+        document.getElementById('fimConfigInput').value = intervaloFim;
+        mostrarModal('configModal');
+    }
+    
+    function fecharConfigModal() { esconderModal('configModal'); }
+    function fecharExportModal() { esconderModal('exportModal'); }
+    
+    function salvarConfiguracoes() {
+        vendedor = document.getElementById('vendedorConfigInput').value;
+        // Lógica para alterar o intervalo seria mais complexa, por enquanto só salva o vendedor
+        salvarDadosLocais();
+        atualizarUI();
+        fecharConfigModal();
+        syncWithCloud();
+    }
+    
+    function exportarDados(method) {
+        let texto = `*Relatório da Rifa de ${vendedor}*\n\n`;
+        texto += `*Números Vendidos:*\n`;
+        const vendidos = numeros.filter(n => n.status === 'vendido');
+        if (vendidos.length === 0) {
+            texto += "Nenhum número vendido ainda.\n";
+        } else {
+            vendidos.forEach(n => {
+                texto += `- Nº ${n.numero}: ${n.comprador} (${n.telefone || 'sem tel'})\n`;
+            });
+        }
+        
+        texto += `\n*Números Disponíveis:*\n`;
+        const disponiveis = numeros.filter(n => n.status === 'disponivel').map(n => n.numero).join(', ');
+        texto += disponiveis || "Nenhum.";
+
+        if (method === 'share' && navigator.share) {
+            navigator.share({
+                title: `Relatório da Rifa`,
+                text: texto,
+            });
+        } else {
+            // Fallback para copiar
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('Relatório copiado para a área de transferência!');
+            }).catch(err => {
+                alert('Erro ao copiar o relatório.');
+            });
+        }
+        fecharExportModal();
+    }
+    
+    async function salvarDadosNoDrive() {
+        if (!googleAccessToken) return;
+        const dataToSave = {
+            vendedor,
+            intervaloInicio,
+            intervaloFim,
+            numeros,
+            updatedAt: new Date().toISOString()
+        };
+        const dataHash = JSON.stringify(dataToSave);
+        if (dataHash === lastSavedDataHash) {
+            showSyncMessage('Dados já estão atualizados.');
+            return;
         }
 
-        // ... Mantenha as outras funções do seu aplicativo (gerarGrid, salvarNumero, etc.) ...
-        // Elas não precisam de alteração para a correção do login.
-        
-        // Inicialização da aplicação
-        document.addEventListener('DOMContentLoaded', function() {
-            // Configura o botão de login
-            document.getElementById('googleSignInBtn').addEventListener('click', handleAuthClick);
+        showSyncMessage('Salvando na nuvem...');
+        try {
+            await procurarArquivoNaPasta();
+            const fileMetadata = { name: DRIVE_FILE_NAME };
+            const media = { mimeType: 'application/json', body: dataHash };
             
-            // Outros listeners...
-            const vendedorInput = document.getElementById('vendedorInput');
-            const comecarBtn = document.getElementById('comecarBtn');
-            vendedorInput.addEventListener('input', () => {
-                comecarBtn.disabled = !vendedorInput.value.trim();
-            });
-            // ...e assim por diante para os outros botões.
+            if (googleDriveFileId) {
+                // Atualiza arquivo existente
+                await gapi.client.drive.files.update({
+                    fileId: googleDriveFileId,
+                    media: media
+                });
+            } else {
+                // Cria novo arquivo
+                fileMetadata.parents = [folderId]; // folderId é obtido em procurarArquivoNaPasta
+                const response = await gapi.client.drive.files.create({
+                    resource: fileMetadata,
+                    media: media,
+                    fields: 'id'
+                });
+                googleDriveFileId = response.result.id;
+            }
+            lastSavedDataHash = dataHash;
+            showSyncMessage('Dados salvos na nuvem com sucesso!');
+        } catch (error) {
+            console.error('Erro ao salvar no Drive:', error);
+            showSyncMessage('Falha ao salvar na nuvem.', true);
+        }
+    }
+
+    async function procurarArquivoNaPasta() {
+        let folderId;
+        // 1. Procura pela pasta 'RifaACS_Data'
+        let response = await gapi.client.drive.files.list({
+            q: `mimeType='application/vnd.google-apps.folder' and name='${DRIVE_APP_FOLDER}' and trashed=false`,
+            fields: 'files(id, name)',
+        });
+        
+        if (response.result.files.length > 0) {
+            folderId = response.result.files[0].id;
+        } else {
+            // 2. Se não encontrar, cria a pasta
+            const folderMetadata = { name: DRIVE_APP_FOLDER, mimeType: 'application/vnd.google-apps.folder' };
+            const file = await gapi.client.drive.files.create({ resource: folderMetadata, fields: 'id' });
+            folderId = file.result.id;
+        }
+
+        // 3. Procura pelo arquivo de backup dentro da pasta
+        response = await gapi.client.drive.files.list({
+            q: `'${folderId}' in parents and name='${DRIVE_FILE_NAME}' and trashed=false`,
+            fields: 'files(id, name)',
         });
 
-        // Aguarda o carregamento do script do Google para então chamar a inicialização
-        // A `defer` tag no script fará com que o `window.onload` espere por ele.
-        window.onload = onGoogleGsiLoaded;
-
-
-        // ==================================================================
-        // RESTANTE DO CÓDIGO (LÓGICA DO APP, MODAIS, ETC.)
-        // Adicione o restante do seu código JavaScript aqui.
-        // As funções como `inicializarApp`, `gerarGrid`, `salvarNumero`, etc.
-        // devem ser incluídas para que o app funcione.
-        // Por exemplo:
-
-        function irParaAppPrincipal() {
-            document.getElementById('setupScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            atualizarUI();
+        if (response.result.files.length > 0) {
+            googleDriveFileId = response.result.files[0].id;
+        } else {
+            googleDriveFileId = null;
         }
-
-        function atualizarUI() {
-           // ... sua lógica de UI ...
-           console.log("UI Atualizada");
-        }
-        
-        function carregarDadosLocais() {
-           console.log("Carregando dados locais...");
-           // ... sua lógica de carregamento local ...
-        }
-
-        function salvarDadosLocais() {
-           console.log("Salvando dados locais...");
-           // ... sua lógica de salvamento local ...
-        }
-        
-        async function procurarArquivoNaPasta() {
-            console.log("Procurando arquivo na pasta...");
-            // ... sua lógica de busca de arquivo ...
-            return; // simula que não encontrou para o exemplo
-        }
-
-        function startAutoSync() {
-            console.log("Sincronização automática iniciada.");
-        }
-
-
+    }
+    
     </script>
 </body>
 </html>
