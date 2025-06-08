@@ -112,115 +112,19 @@
         </div>
 
         <div id="mainApp" class="hidden">
-            <div class="header">
-                <div class="header-left">
-                    <div class="header-icon">📊</div>
-                    <div>
-                        <div class="header-title">RifaACS</div>
-                        <div class="header-subtitle" id="vendedorHeader">Vendedor: </div>
-                    </div>
-                </div>
-                <div class="header-buttons">
-                    <button id="syncBtn" class="header-button" style="background: #3B82F6;" title="Sincronizar com a nuvem">🔄</button>
-                    <button id="exportBtn" class="header-button" style="background: #10B981;" title="Exportar dados">📄</button>
-                    <button id="configBtn" class="header-button" style="background: #3B82F6;" title="Configurações">⚙️</button>
-                    <button id="resetBtn" class="header-button" style="background: #EF4444;" title="Resetar aplicativo">🗑️</button>
-                </div>
-            </div>
-            <div class="content">
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <div class="stat-number" style="color: #10B981;" id="vendidosCount">0</div>
-                        <div class="stat-label">Vendidos</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" style="color: #3B82F6;" id="disponiveisCount">0</div>
-                        <div class="stat-label">Disponíveis</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" style="color: #374151;" id="totalCount">0</div>
-                        <div class="stat-label">Total</div>
-                    </div>
-                </div>
-                <div class="grid-container">
-                    <div id="numerosGrid"></div>
-                </div>
-            </div>
+            <!-- O restante da sua interface principal permanece aqui -->
         </div>
     </div>
 
-    <div id="autoSaveIndicator" class="auto-save-indicator">
-        💾 Dados salvos automaticamente
-    </div>
-
-    <div id="syncIndicator" class="sync-indicator">
-        <span id="syncMessage">Sincronizando com a nuvem...</span>
-    </div>
-
-    <div id="numeroModal" class="modal-overlay hidden">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title" id="numeroModalTitle">Número</div>
-                <button class="close-button" onclick="fecharModal()">&times;</button>
-            </div>
-            <div class="modal-content">
-                <label class="label">Comprador</label>
-                <input type="text" id="compradorInput" class="input" placeholder="Nome do comprador">
-                <label class="label">Telefone</label>
-                <input type="tel" id="telefoneInput" class="input" placeholder="(00) 00000-0000">
-                <button id="salvarBtn" class="primary-button">
-                    💾 Salvar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="configModal" class="modal-overlay hidden">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title">Configurações</div>
-                <button class="close-button" onclick="fecharConfigModal()">&times;</button>
-            </div>
-            <div class="modal-content">
-                <label class="label">Nome do Vendedor</label>
-                <input type="text" id="vendedorConfigInput" class="input" placeholder="Digite seu nome">
-                <div class="row">
-                    <div class="half-input">
-                        <label class="label">Número Inicial</label>
-                        <input type="number" id="inicioConfigInput" class="input">
-                    </div>
-                    <div class="half-input">
-                        <label class="label">Número Final</label>
-                        <input type="number" id="fimConfigInput" class="input">
-                    </div>
-                </div>
-                <button onclick="salvarConfiguracoes()" class="primary-button">
-                    Salvar Configurações
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="exportModal" class="modal-overlay hidden">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title">Exportar Dados</div>
-                <button class="close-button" onclick="fecharExportModal()">&times;</button>
-            </div>
-            <div class="modal-content">
-                <button onclick="exportarDados()" class="primary-button" style="background: #3B82F6;">
-                    📤 Compartilhar Relatório
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Modais e indicadores permanecem os mesmos -->
 
     <script>
         // ==================================================================
         // CONFIGURAÇÃO GOOGLE - ATUALIZADO
         // ==================================================================
         const GOOGLE_CLIENT_ID = '469226201678-rf8qdoccbhv1j56dldtga4fnbrqtnvrh.apps.googleusercontent.com';
-        const GOOGLE_API_KEY = 'AIzaSyBHgoFJVRAW-mg4kVJDoOY9-LhLBC4jKVo';
+        const GOOGLE_API_KEY = 'AIzaSyBHgoFJVRAW-mg4kVJDoOY9-LhLBC4jKVo'; // Mantenha sua API Key
+        const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
         const DRIVE_APP_FOLDER = 'RifaACS_Data';
         const DRIVE_FILE_NAME = 'rifaacs_backup.json';
         // ==================================================================
@@ -230,115 +134,66 @@
         let intervaloFim = 200;
         let numeros = [];
         let numeroSelecionado = null;
+        
+        let tokenClient; // Novo cliente de token do Google
         let googleAccessToken = null;
         let googleDriveFileId = null;
         let lastSavedDataHash = '';
         let saveTimeout = null;
         let saveInProgress = false;
         let syncInterval;
-        let googleAPILoadAttempts = 0;
-        const maxGoogleAPILoadAttempts = 5;
-
-        const STORAGE_KEYS = {
-            vendedor: 'rifaacs_vendedor',
-            intervaloInicio: 'rifaacs_inicio',
-            intervaloFim: 'rifaacs_fim',
-            numeros: 'rifaacs_numeros',
-            configurado: 'rifaacs_configurado'
-        };
 
         // Função para mostrar mensagens de sincronização
-        function showSyncMessage(message, isError = false) {
+        function showSyncMessage(message, isError = false, duration = 3000) {
             const indicator = document.getElementById('syncIndicator');
             const messageEl = document.getElementById('syncMessage');
-            indicator.style.background = isError ? '#EF4444' : '#3B82F6';
+            indicator.className = 'sync-indicator'; // Reseta classes
+            if (isError) {
+                indicator.classList.add('error');
+            }
             messageEl.textContent = message;
             indicator.classList.add('show');
             
-            if (!isError) {
-                setTimeout(() => {
-                    indicator.classList.remove('show');
-                }, 3000);
-            }
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, duration);
         }
 
-        // Função para verificar se as APIs do Google estão carregadas
-        function checkGoogleAPIsLoaded() {
-            if (!window.google || !window.gapi) {
-                console.error('Google APIs não carregadas');
-                return false;
-            }
-            return true;
-        }
+        // ==================================================================
+        // NOVA LÓGICA DE AUTENTICAÇÃO GOOGLE (GIS)
+        // ==================================================================
 
-        // Função para inicializar o cliente de autenticação
-        async function initializeGoogleAuth() {
-            return new Promise((resolve, reject) => {
-                if (!checkGoogleAPIsLoaded()) {
-                    reject(new Error('Google APIs não carregadas'));
-                    return;
-                }
-
-                gapi.load('auth2', {
-                    callback: () => {
-                        gapi.auth2.init({
-                            client_id: GOOGLE_CLIENT_ID,
-                            scope: 'https://www.googleapis.com/auth/drive.file'
-                        }).then(
-                            () => resolve(),
-                            (err) => reject(err)
-                        );
-                    },
-                    onerror: () => reject(new Error('Erro ao carregar auth2')),
-                    timeout: 10000 // 10 segundos timeout
-                });
+        // Função chamada quando a biblioteca do Google GSI está pronta
+        function onGoogleGsiLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: DRIVE_SCOPE,
+                callback: tokenCallback, // Função chamada após o usuário autorizar
             });
         }
 
-        // Função para lidar com o clique no botão de login
-        async function handleAuthClick() {
-            try {
-                if (!checkGoogleAPIsLoaded()) {
-                    throw new Error('Google APIs não carregadas');
-                }
-
-                // Inicializa o auth2 se não estiver inicializado
-                if (!gapi.auth2.getAuthInstance()) {
-                    await initializeGoogleAuth();
-                }
-
-                const auth2 = gapi.auth2.getAuthInstance();
-                
-                // Se já estiver autenticado
-                if (auth2.isSignedIn.get()) {
-                    const user = auth2.currentUser.get();
-                    googleAccessToken = user.getAuthResponse().access_token;
-                    await handleSuccessfulAuth();
-                    return;
-                }
-                
-                // Faz login
-                const user = await auth2.signIn({
-                    prompt: 'select_account'
-                });
-                
-                googleAccessToken = user.getAuthResponse().access_token;
+        // Callback que recebe o token de acesso
+        async function tokenCallback(tokenResponse) {
+            if (tokenResponse && tokenResponse.access_token) {
+                googleAccessToken = tokenResponse.access_token;
                 await handleSuccessfulAuth();
-
-            } catch (error) {
-                console.error('Erro na autenticação:', error);
-                let errorMessage = 'Erro ao conectar com o Google';
-                
-                if (error.error === 'popup_closed_by_user') {
-                    errorMessage = 'A janela de login foi fechada. Tente novamente.';
-                } else if (error.error === 'access_denied') {
-                    errorMessage = 'Acesso negado. Você precisa autorizar o aplicativo.';
-                }
-                
-                document.getElementById('syncStatus').textContent = errorMessage;
-                document.getElementById('syncStatus').style.color = '#EF4444';
-                showSyncMessage(errorMessage, true);
+            } else {
+                console.error("Erro na resposta do token:", tokenResponse);
+                showSyncMessage('Falha ao obter autorização do Google.', true, 5000);
             }
+        }
+
+        // Função para iniciar o processo de login/autorização
+        function handleAuthClick() {
+            if (!tokenClient) {
+                showSyncMessage('A biblioteca do Google ainda não carregou. Tente novamente em alguns segundos.', true, 5000);
+                return;
+            }
+
+            // Se já temos um token, podemos tentar usá-lo ou pedir um novo.
+            // Para garantir que o usuário está conectado, pedimos o token novamente.
+            // O `prompt` vazio tentará um login silencioso se possível.
+            tokenClient.requestAccessToken({ prompt: 'consent' });
         }
 
         // Função chamada após autenticação bem-sucedida
@@ -346,115 +201,156 @@
             document.getElementById('syncStatus').textContent = 'Conectado. Sincronizando...';
             document.getElementById('syncStatus').classList.add('connected');
             document.getElementById('googleSignInBtn').textContent = 'Reconectar com Google';
-            
             showSyncMessage('Autenticado com sucesso!');
-            
-            // Carrega os dados após autenticação
-            const dadosCarregados = await carregarDados();
+
+            // Carrega o cliente da API do Google Drive
+            await loadGapiClient();
+
+            // Seta o token para as chamadas da GAPI
+            gapi.client.setToken({ access_token: googleAccessToken });
+
+            const dadosCarregados = await carregarDadosDoDrive(); // Renomeado para clareza
             if (dadosCarregados && vendedor) {
                 irParaAppPrincipal();
+            } else if (dadosCarregados) {
+                 document.getElementById('syncStatus').textContent = 'Conectado. Preencha os dados para começar.';
             } else {
-                document.getElementById('syncStatus').textContent = 'Conectado (sem dados salvos)';
+                 document.getElementById('syncStatus').textContent = 'Conectado (sem dados salvos)';
             }
             
-            startAutoSync();
+            // Inicia a sincronização automática
+            startAutoSync(); 
         }
 
-        // Função para carregar a API do Drive
-        async function loadDriveAPI() {
+        // Função para carregar o cliente da API GAPI (necessário para o Drive)
+        async function loadGapiClient() {
             return new Promise((resolve, reject) => {
-                gapi.load('client', {
-                    callback: async () => {
-                        try {
-                            await gapi.client.init({
-                                apiKey: GOOGLE_API_KEY,
-                                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
-                            });
-                            resolve();
-                        } catch (error) {
-                            reject(error);
-                        }
-                    },
-                    onerror: () => reject(new Error('Erro ao carregar client')),
-                    timeout: 10000
+                gapi.load('client', async () => {
+                    try {
+                        await gapi.client.init({
+                            apiKey: GOOGLE_API_KEY,
+                            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+                        });
+                        resolve();
+                    } catch (err) {
+                        console.error("Erro ao inicializar GAPI client:", err);
+                        reject(err);
+                    }
                 });
             });
         }
+       
+        // ==================================================================
+        // LÓGICA DO GOOGLE DRIVE (busca e salvamento de arquivos)
+        // ==================================================================
 
-        // Função para tentar carregar as APIs do Google
-        async function loadGoogleAPIs() {
-            return new Promise((resolve) => {
-                const script1 = document.createElement('script');
-                script1.src = 'https://accounts.google.com/gsi/client';
-                script1.async = true;
-                script1.defer = true;
-                script1.onload = () => {
-                    const script2 = document.createElement('script');
-                    script2.src = 'https://apis.google.com/js/api.js';
-                    script2.async = true;
-                    script2.defer = true;
-                    script2.onload = resolve;
-                    document.head.appendChild(script2);
-                };
-                document.head.appendChild(script1);
-            });
-        }
+        // ... A lógica para `carregarDadosDoDrive`, `salvarDadosNoDrive`, `procurarArquivoNaPasta`, etc.
+        // permanece praticamente a mesma, pois ela já usa a biblioteca `gapi.client` que configuramos acima.
+        // Apenas ajustamos os nomes e garantimos que o token é setado antes.
 
-        // Função para verificar e carregar as APIs
-        async function checkAndLoadGoogleAPIs() {
-            if (checkGoogleAPIsLoaded()) {
-                return true;
+        async function carregarDadosDoDrive() {
+            showSyncMessage('Buscando dados na nuvem...');
+            if (!googleAccessToken) {
+                showSyncMessage('Não autenticado.', true);
+                return false;
             }
 
             try {
-                await loadGoogleAPIs();
-                
-                // Espera um pouco para as APIs serem inicializadas
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                if (!checkGoogleAPIsLoaded()) {
-                    throw new Error('APIs não carregadas após tentativa');
+                await procurarArquivoNaPasta();
+                if (!googleDriveFileId) {
+                    showSyncMessage('Nenhum backup encontrado na nuvem.');
+                    carregarDadosLocais(); // Carrega local se não achar na nuvem
+                    return false;
                 }
-                
-                return true;
-            } catch (error) {
-                console.error('Falha ao carregar Google APIs:', error);
-                return false;
+
+                const response = await gapi.client.drive.files.get({
+                    fileId: googleDriveFileId,
+                    alt: 'media'
+                });
+
+                const data = response.result;
+                if (data && data.vendedor) {
+                    vendedor = data.vendedor;
+                    intervaloInicio = data.intervaloInicio;
+                    intervaloFim = data.intervaloFim;
+                    numeros = data.numeros;
+                    lastSavedDataHash = JSON.stringify(data);
+                    
+                    salvarDadosLocais();
+                    atualizarUI();
+                    showSyncMessage('Dados carregados da nuvem!');
+                    return true;
+                }
+            } catch (err) {
+                console.error("Erro ao carregar dados do Drive: ", err);
+                showSyncMessage('Erro ao carregar da nuvem. Usando dados locais.', true);
+                carregarDadosLocais();
             }
+            return false;
         }
 
-        // ... (mantenha as outras funções como carregarDados, salvarDados, etc.)
-
+        // ... Mantenha as outras funções do seu aplicativo (gerarGrid, salvarNumero, etc.) ...
+        // Elas não precisam de alteração para a correção do login.
+        
         // Inicialização da aplicação
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // Configura o botão de login
-            document.getElementById('googleSignInBtn').addEventListener('click', async function() {
-                const loaded = await checkAndLoadGoogleAPIs();
-                if (!loaded) {
-                    alert('Erro ao carregar Google APIs. Recarregue a página.');
-                    return;
-                }
-                handleAuthClick();
-            });
+            document.getElementById('googleSignInBtn').addEventListener('click', handleAuthClick);
             
+            // Outros listeners...
             const vendedorInput = document.getElementById('vendedorInput');
             const comecarBtn = document.getElementById('comecarBtn');
             vendedorInput.addEventListener('input', () => {
                 comecarBtn.disabled = !vendedorInput.value.trim();
             });
-            comecarBtn.addEventListener('click', inicializarApp);
-            
-            document.getElementById('exportBtn').addEventListener('click', () => mostrarModal('exportModal'));
-            document.getElementById('configBtn').addEventListener('click', mostrarConfigModal);
-            document.getElementById('resetBtn').addEventListener('click', resetarApp);
-            document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
-            document.getElementById('syncBtn').addEventListener('click', syncWithCloud);
-            
-            // Tenta carregar as APIs automaticamente
-            await checkAndLoadGoogleAPIs();
+            // ...e assim por diante para os outros botões.
         });
 
-        // ... (mantenha o restante das funções como estava antes) ...
+        // Aguarda o carregamento do script do Google para então chamar a inicialização
+        // A `defer` tag no script fará com que o `window.onload` espere por ele.
+        window.onload = onGoogleGsiLoaded;
+
+
+        // ==================================================================
+        // RESTANTE DO CÓDIGO (LÓGICA DO APP, MODAIS, ETC.)
+        // Adicione o restante do seu código JavaScript aqui.
+        // As funções como `inicializarApp`, `gerarGrid`, `salvarNumero`, etc.
+        // devem ser incluídas para que o app funcione.
+        // Por exemplo:
+
+        function irParaAppPrincipal() {
+            document.getElementById('setupScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            atualizarUI();
+        }
+
+        function atualizarUI() {
+           // ... sua lógica de UI ...
+           console.log("UI Atualizada");
+        }
+        
+        function carregarDadosLocais() {
+           console.log("Carregando dados locais...");
+           // ... sua lógica de carregamento local ...
+        }
+
+        function salvarDadosLocais() {
+           console.log("Salvando dados locais...");
+           // ... sua lógica de salvamento local ...
+        }
+        
+        async function procurarArquivoNaPasta() {
+            console.log("Procurando arquivo na pasta...");
+            // ... sua lógica de busca de arquivo ...
+            return; // simula que não encontrou para o exemplo
+        }
+
+        function startAutoSync() {
+            console.log("Sincronização automática iniciada.");
+        }
+
+
     </script>
 </body>
 </html>
+
