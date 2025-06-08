@@ -62,8 +62,11 @@
         .google-icon { width: 20px; height: 20px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .sync-status { font-size: 12px; text-align: center; color: #6B7280; margin-top: 16px; }
         .sync-status.connected { color: #10B981; }
+        .sync-indicator { position: fixed; bottom: 60px; right: 20px; background: #3B82F6; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 1001; }
+        .sync-indicator.show { opacity: 1; }
+        .sync-indicator.error { background: #EF4444; }
         @media screen and (-webkit-min-device-pixel-ratio: 0) { select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"] { font-size: 16px; } }
-        @media (max-width: 480px) { .form-container { margin: 0 10px; padding: 20px; } .numero-button { width: 45px; height: 45px; } .stats-container { flex-direction: column; gap: 8px; } .stat-card { padding: 16px; } }
+        @media (max-width: 480px) { .form-container { margin: 0 10px; padding: 20px; } .numero-button { width: 45px; height: 45px; } .stats-container { flex-direction: column; gap: 8px; } .stat-card { padding: 16px; } .header-buttons { gap: 4px; } }
     </style>
 </head>
 <body>
@@ -118,9 +121,10 @@
                     </div>
                 </div>
                 <div class="header-buttons">
-                    <button id="exportBtn" class="header-button" style="background: #10B981;">📄</button>
-                    <button id="configBtn" class="header-button" style="background: #3B82F6;">⚙️</button>
-                    <button id="resetBtn" class="header-button" style="background: #EF4444;">🔄</button>
+                    <button id="syncBtn" class="header-button" style="background: #3B82F6;" title="Sincronizar com a nuvem">🔄</button>
+                    <button id="exportBtn" class="header-button" style="background: #10B981;" title="Exportar dados">📄</button>
+                    <button id="configBtn" class="header-button" style="background: #3B82F6;" title="Configurações">⚙️</button>
+                    <button id="resetBtn" class="header-button" style="background: #EF4444;" title="Resetar aplicativo">🗑️</button>
                 </div>
             </div>
             <div class="content">
@@ -147,6 +151,10 @@
 
     <div id="autoSaveIndicator" class="auto-save-indicator">
         💾 Dados salvos automaticamente
+    </div>
+
+    <div id="syncIndicator" class="sync-indicator">
+        <span id="syncMessage">Sincronizando com a nuvem...</span>
     </div>
 
     <div id="numeroModal" class="modal-overlay hidden">
@@ -228,6 +236,7 @@
         let lastSavedDataHash = '';
         let saveTimeout = null;
         let saveInProgress = false;
+        let syncInterval;
 
         const STORAGE_KEYS = {
             vendedor: 'rifaacs_vendedor',
@@ -248,19 +257,98 @@
             return getDataHash() !== lastSavedDataHash;
         }
 
-        // Sistema de debounce para evitar múltiplos salvamentos consecutivos
-        async function debouncedSave() {
-            if (saveTimeout) clearTimeout(saveTimeout);
+        // Mostra mensagem de sincronização
+        function showSyncMessage(message, isError = false) {
+            const indicator = document.getElementById('syncIndicator');
+            const messageEl = document.getElementById('syncMessage');
+            indicator.style.background = isError ? '#EF4444' : '#3B82F6';
+            messageEl.textContent = message;
+            indicator.classList.add('show');
             
-            // Salvamento imediato se os dados foram modificados
-            if (hasDataChanged()) {
-                await salvarDados();
+            if (!isError) {
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 3000);
             }
+        }
+
+        // Inicia o sistema de sincronização automática
+        function startAutoSync() {
+            // Para qualquer intervalo existente
+            if (syncInterval) clearInterval(syncInterval);
             
-            // Configura o próximo salvamento periódico
-            saveTimeout = setTimeout(() => {
-                debouncedSave();
-            }, 10000); // 10 segundos
+            // Configura novo intervalo de sincronização (10 segundos)
+            syncInterval = setInterval(async () => {
+                if (googleAccessToken && hasDataChanged()) {
+                    await syncWithCloud(false); // Sincronização automática (silenciosa)
+                }
+            }, 10000);
+        }
+
+        // Sincroniza com a nuvem (manual ou automático)
+        async function syncWithCloud(showFeedback = true) {
+            if (!googleAccessToken) {
+                if (showFeedback) showSyncMessage('❌ Não conectado ao Google', true);
+                return false;
+            }
+
+            if (showFeedback) showSyncMessage('🔄 Sincronizando com a nuvem...');
+
+            try {
+                // Primeiro tenta carregar dados mais recentes da nuvem
+                const cloudData = await carregarDadosDoDrive();
+                
+                if (cloudData) {
+                    // Verifica se os dados locais são mais recentes
+                    const localData = {
+                        vendedor,
+                        intervaloInicio,
+                        intervaloFim,
+                        numeros,
+                        lastModified: new Date().toISOString()
+                    };
+                    
+                    // Se os dados locais foram modificados desde o último sync
+                    if (hasDataChanged()) {
+                        // Faz merge dos dados - priorizando os mais recentes
+                        const cloudModified = cloudData.lastModified ? new Date(cloudData.lastModified) : 0;
+                        const localModified = lastSavedDataHash ? new Date(localData.lastModified) : 0;
+                        
+                        if (localModified > cloudModified) {
+                            // Dados locais são mais recentes - envia para nuvem
+                            await salvarDadosNoDrive();
+                            if (showFeedback) showSyncMessage('☁️ Dados locais enviados para nuvem');
+                        } else {
+                            // Dados da nuvem são mais recentes - atualiza local
+                            vendedor = cloudData.vendedor;
+                            intervaloInicio = cloudData.intervaloInicio;
+                            intervaloFim = cloudData.intervaloFim;
+                            numeros = cloudData.numeros;
+                            lastSavedDataHash = getDataHash();
+                            
+                            // Atualiza UI
+                            document.getElementById('vendedorHeader').textContent = `Vendedor: ${vendedor}`;
+                            atualizarGrid();
+                            atualizarEstatisticas();
+                            
+                            if (showFeedback) showSyncMessage('⬇️ Dados da nuvem carregados');
+                        }
+                    } else {
+                        // Nenhuma mudança local - apenas verifica se há atualizações na nuvem
+                        if (showFeedback) showSyncMessage('✅ Já está sincronizado');
+                    }
+                } else {
+                    // Não encontrou dados na nuvem - envia os locais
+                    await salvarDadosNoDrive();
+                    if (showFeedback) showSyncMessage('☁️ Dados enviados para nuvem');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Erro na sincronização:', error);
+                if (showFeedback) showSyncMessage('❌ Falha na sincronização', true);
+                return false;
+            }
         }
 
         async function salvarDados() {
@@ -356,24 +444,6 @@
             }, 2500);
         }
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            document.getElementById('googleSignInBtn').addEventListener('click', handleAuthClick);
-            const vendedorInput = document.getElementById('vendedorInput');
-            const comecarBtn = document.getElementById('comecarBtn');
-            vendedorInput.addEventListener('input', () => {
-                comecarBtn.disabled = !vendedorInput.value.trim();
-            });
-            comecarBtn.addEventListener('click', inicializarApp);
-            
-            document.getElementById('exportBtn').addEventListener('click', () => mostrarModal('exportModal'));
-            document.getElementById('configBtn').addEventListener('click', mostrarConfigModal);
-            document.getElementById('resetBtn').addEventListener('click', resetarApp);
-            document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
-            
-            // Inicia o sistema de salvamento automático
-            debouncedSave();
-        });
-
         // --- Funções de Integração Google ---
 
         window.onload = () => {
@@ -421,6 +491,9 @@
                          irParaAppPrincipal();
                     }
                 }
+
+                // Inicia a sincronização automática
+                startAutoSync();
             });
         }
         
@@ -457,30 +530,50 @@
                 if(!googleDriveFileId) {
                     googleDriveFileId = await getOrCreateFileId(folderId);
                 }
-                const rifaData = { vendedor, intervaloInicio, intervaloFim, numeros, lastModified: new Date().toISOString() };
+                
+                const rifaData = { 
+                    vendedor, 
+                    intervaloInicio, 
+                    intervaloFim, 
+                    numeros, 
+                    lastModified: new Date().toISOString() 
+                };
+                
                 const fileContent = JSON.stringify(rifaData);
                 const boundary = '-------314159265358979323846';
                 const delimiter = `\r\n--${boundary}\r\n`;
                 const close_delim = `\r\n--${boundary}--`;
-                const metadata = { name: DRIVE_FILE_NAME, mimeType: 'application/json' };
+                const metadata = { 
+                    name: DRIVE_FILE_NAME, 
+                    mimeType: 'application/json',
+                    ...(googleDriveFileId ? {} : { parents: [folderId] })
+                };
                 
-                let path, method;
-                if (googleDriveFileId) {
-                    path = `/upload/drive/v3/files/${googleDriveFileId}`;
-                    method = 'PATCH';
-                } else {
-                    path = '/upload/drive/v3/files';
-                    method = 'POST';
-                    metadata.parents = [folderId];
-                }
-                const multipartRequestBody = delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/json\r\n\r\n' + fileContent + close_delim;
-                const response = await gapi.client.request({ path, method, params: {'uploadType': 'multipart'}, headers: {'Content-Type': `multipart/related; boundary="${boundary}"`}, body: multipartRequestBody });
+                const path = googleDriveFileId 
+                    ? `/upload/drive/v3/files/${googleDriveFileId}`
+                    : '/upload/drive/v3/files';
+                const method = googleDriveFileId ? 'PATCH' : 'POST';
                 
-                if (!googleDriveFileId) googleDriveFileId = response.result.id;
-                console.log('Dados salvos no Drive:', response.result);
-                mostrarIndicadorSalvamento('nuvem');
+                const multipartRequestBody = 
+                    delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + 
+                    JSON.stringify(metadata) + 
+                    delimiter + 'Content-Type: application/json\r\n\r\n' + 
+                    fileContent + 
+                    close_delim;
+                
+                await gapi.client.request({ 
+                    path, 
+                    method, 
+                    params: {'uploadType': 'multipart'}, 
+                    headers: {'Content-Type': `multipart/related; boundary="${boundary}"`}, 
+                    body: multipartRequestBody 
+                });
+                
+                lastSavedDataHash = getDataHash();
+                return true;
             } catch (error) {
                 console.error('Erro ao salvar no Google Drive:', error);
+                throw error;
             } finally {
                 saveInProgress = false;
             }
