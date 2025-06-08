@@ -2,962 +2,598 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P4Trainer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RifaACS">
+    <title>RifaACS - Gerenciador de Rifas</title>
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%233B82F6' rx='40'/%3E%3Cpath fill='white' d='M45 60h90v15H45zm0 30h90v15H45zm0 30h90v15H45z'/%3E%3C/svg%3E">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .navbar h2 {
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        .btn-logout {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .workout-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-left: 5px solid #667eea;
-        }
-
-        .workout-day {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .exercise-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .exercise-image {
-            width: 60px;
-            height: 107px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: #e9ecef;
-        }
-
-        .exercise-details {
-            flex: 1;
-        }
-
-        .exercise-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .exercise-reps {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .admin-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .btn-small {
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow-y: auto;
-        }
-
-        .day-selector {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .day-btn {
-            padding: 12px;
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .day-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 10px;
-            margin-top: 10px;
-            object-fit: cover;
-        }
-
-        .user-selector {
-            margin-bottom: 20px;
-        }
-
-        .student-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .student-card:hover {
-            background: #e9ecef;
-            border-color: #667eea;
-        }
-
-        .student-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .student-workouts {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .card {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6; color: #374151; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; touch-action: manipulation; }
+        .container { min-height: 100vh; display: flex; flex-direction: column; }
+        .setup-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; min-height: 100vh; }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .app-icon { width: 80px; height: 80px; background: #3B82F6; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 40px; color: white; }
+        .app-title { font-size: 32px; font-weight: bold; color: #374151; margin-bottom: 8px; }
+        .app-subtitle { font-size: 16px; color: #6B7280; }
+        .form-container { width: 100%; max-width: 400px; background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .label { font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; margin-top: 16px; display: block; }
+        .input { width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 12px; font-size: 16px; background: white; color: #374151; -webkit-appearance: none; appearance: none; }
+        .input:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .row { display: flex; gap: 12px; }
+        .half-input { flex: 1; }
+        .primary-button { width: 100%; background: #3B82F6; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 500; margin-top: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .primary-button:hover:not(:disabled) { background: #2563EB; }
+        .primary-button:disabled { background: #D1D5DB; cursor: not-allowed; }
+        .header { background: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-icon { width: 40px; height: 40px; background: #3B82F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+        .header-title { font-size: 20px; font-weight: bold; color: #374151; }
+        .header-subtitle { font-size: 14px; color: #6B7280; }
+        .header-buttons { display: flex; gap: 8px; }
+        .header-button { width: 40px; height: 40px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; }
+        .header-button:hover { opacity: 0.9; }
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+        .stats-container { display: flex; gap: 12px; margin-bottom: 24px; }
+        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .stat-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: #6B7280; }
+        .grid-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .grid-row { display: flex; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+        .numero-button { width: 50px; height: 50px; margin: 4px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        .numero-disponivel { background: white; border-color: #D1D5DB; color: #374151; }
+        .numero-disponivel:hover { border-color: #3B82F6; background: #F3F4F6; }
+        .numero-vendido { background: #10B981; border-color: #059669; color: white; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
+        .modal-container { background: white; border-radius: 16px; width: 100%; max-width: 400px; max-height: 80vh; overflow: hidden; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #E5E7EB; }
+        .modal-title { font-size: 20px; font-weight: bold; color: #374151; }
+        .close-button { width: 32px; height: 32px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #374151; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
+        .close-button:hover { background: #F3F4F6; }
+        .modal-content { padding: 20px; overflow-y: auto; }
+        .hidden { display: none !important; }
+        .auto-save-indicator { position: fixed; bottom: 20px; right: 20px; background: #10B981; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 1001; }
+        .auto-save-indicator.show { opacity: 1; }
+        .google-btn { background-color: #4285F4; color: white; margin-top: 16px; }
+        .google-btn:hover { background-color: #357ae8; }
+        .google-icon { width: 20px; height: 20px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .sync-status { font-size: 12px; text-align: center; color: #6B7280; margin-top: 16px; }
+        .sync-status.connected { color: #10B981; }
+        @media screen and (-webkit-min-device-pixel-ratio: 0) { select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"] { font-size: 16px; } }
+        @media (max-width: 480px) { .form-container { margin: 0 10px; padding: 20px; } .numero-button { width: 45px; height: 45px; } .stats-container { flex-direction: column; gap: 8px; } .stat-card { padding: 16px; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Tela de Login -->
-        <div id="loginScreen" class="screen">
+        <div id="setupScreen" class="setup-container">
+            <div class="logo-container">
+                <div class="app-icon">📊</div>
+                <div class="app-title">RifaACS</div>
+                <div class="app-subtitle">Gerenciador de Rifas</div>
+            </div>
+
+            <div class="form-container">
+                <p style="text-align: center; font-size: 14px; color: #6B7280; margin-bottom: 20px;">
+                    Conecte sua conta Google para salvar seus dados na nuvem e acessá-los de qualquer lugar.
+                </p>
+                <button id="googleSignInBtn" class="primary-button google-btn">
+                    <span class="google-icon">
+                        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#4285F4" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#34A853" d="M6.306 14.691L11.961 19.346C12.964 16.711 14.861 14.691 17.22 13.593l-5.657-5.657C9.843 10.163 7.824 12.28 6.306 14.691z"/><path fill="#FBBC05" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-5.657-5.657C30.072 35.661 27.22 36 24 36c-3.153 0-5.952-1.428-7.961-3.644L10.384 38.01C14.046 41.947 18.732 44 24 44z"/><path fill="#EA4335" d="M43.611 20.083L38.01 24.738C39.463 27.18 39.998 30.05 39.998 33c0 1.22-.095 2.41-.269 3.592L45.41 42.1C47.25 38.41 48 34.33 48 30c0-3.32-.81-6.49-2.22-9.21z"/></svg>
+                    </span>
+                    Conectar com Google
+                </button>
+                <div id="syncStatus" class="sync-status">Não conectado</div>
+                <hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;">
+                
+                <label class="label">Nome do Vendedor</label>
+                <input type="text" id="vendedorInput" class="input" placeholder="Digite seu nome">
+
+                <div class="row">
+                    <div class="half-input">
+                        <label class="label">Número Inicial</label>
+                        <input type="number" id="inicioInput" class="input" value="101">
+                    </div>
+                    <div class="half-input">
+                        <label class="label">Número Final</label>
+                        <input type="number" id="fimInput" class="input" value="200">
+                    </div>
+                </div>
+
+                <button id="comecarBtn" class="primary-button" disabled>
+                    Começar
+                </button>
+            </div>
+        </div>
+
+        <div id="mainApp" class="hidden">
             <div class="header">
-                <h1>💪 P4Trainer</h1>
-                <p>Sistema de Treinos Personalizado</p>
-            </div>
-            
-            <div class="card">
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="username">Usuário</label>
-                        <input type="text" id="username" class="form-control" placeholder="Digite seu usuário ou admin" required>
-                        <small style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 5px; display: block;">
-                            Admin: digite "admin" | Alunos: digite seu username
-                        </small>
+                <div class="header-left">
+                    <div class="header-icon">📊</div>
+                    <div>
+                        <div class="header-title">RifaACS</div>
+                        <div class="header-subtitle" id="vendedorHeader">Vendedor: </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Senha</label>
-                        <input type="password" id="password" class="form-control" placeholder="Digite sua senha" required>
-                        <small style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 5px; display: block;">
-                            Admin: p4trainer | Alunos: senha fornecida pelo treinador
-                        </small>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">Entrar</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Tela do Admin -->
-        <div id="adminScreen" class="screen hidden">
-            <div class="navbar">
-                <h2>👨‍💼 Painel Admin</h2>
-                <button class="btn-logout" onclick="logout()">Sair</button>
-            </div>
-
-            <div class="card">
-                <button class="btn btn-primary" onclick="showCreateWorkout()">+ Criar Novo Treino</button>
-                <button class="btn btn-secondary" onclick="showStudentManagement()">👥 Gerenciar Alunos</button>
-            </div>
-
-            <div id="workoutsList"></div>
-        </div>
-
-        <!-- Tela do Aluno -->
-        <div id="studentScreen" class="screen hidden">
-            <div class="navbar">
-                <h2 id="studentWelcome">👋 Olá, Aluno!</h2>
-                <button class="btn-logout" onclick="logout()">Sair</button>
-            </div>
-
-            <div id="studentWorkouts"></div>
-        </div>
-
-        <!-- Tela de Seleção de Aluno (Admin) -->
-        <div id="studentSelectionScreen" class="screen hidden">
-            <div class="navbar">
-                <h2>👥 Selecionar Aluno</h2>
-                <button class="btn-logout" onclick="showAdminScreen()">Voltar</button>
-            </div>
-
-            <div class="card">
-                <div class="form-group">
-                    <label>Novo Aluno</label>
-                    <input type="text" id="newStudentName" class="form-control" placeholder="Nome do novo aluno">
-                    <button class="btn btn-success" onclick="createStudent()" style="margin-top: 10px;">Adicionar Aluno</button>
+                </div>
+                <div class="header-buttons">
+                    <button id="exportBtn" class="header-button" style="background: #10B981;">📄</button>
+                    <button id="configBtn" class="header-button" style="background: #3B82F6;">⚙️</button>
+                    <button id="resetBtn" class="header-button" style="background: #EF4444;">🔄</button>
                 </div>
             </div>
-
-            <div id="studentsList"></div>
-        </div>
-    </div>
-
-    <!-- Modal para Criar/Editar Treino -->
-    <div id="workoutModal" class="modal hidden">
-        <div class="modal-content">
-            <h3 id="modalTitle">Criar Novo Treino</h3>
-            
-            <div class="form-group">
-                <label>Aluno</label>
-                <select id="modalStudentSelect" class="form-control">
-                    <option value="">Selecione um aluno</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Dia da Semana</label>
-                <div class="day-selector">
-                    <div class="day-btn" data-day="segunda">Segunda</div>
-                    <div class="day-btn" data-day="terca">Terça</div>
-                    <div class="day-btn" data-day="quarta">Quarta</div>
-                    <div class="day-btn" data-day="quinta">Quinta</div>
-                    <div class="day-btn" data-day="sexta">Sexta</div>
-                    <div class="day-btn" data-day="sabado">Sábado</div>
+            <div class="content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #10B981;" id="vendidosCount">0</div>
+                        <div class="stat-label">Vendidos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #3B82F6;" id="disponiveisCount">0</div>
+                        <div class="stat-label">Disponíveis</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #374151;" id="totalCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
                 </div>
-            </div>
-
-            <div id="exercisesList">
-                <h4>Exercícios</h4>
-                <div id="exercisesContainer"></div>
-                <button type="button" class="btn btn-secondary" onclick="addExercise()">+ Adicionar Exercício</button>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-primary" onclick="saveWorkout()">Salvar</button>
-                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <div class="grid-container">
+                    <div id="numerosGrid"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        // Firebase configuration
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
+    <div id="autoSaveIndicator" class="auto-save-indicator">
+        💾 Dados salvos automaticamente
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBwLLJDdIEX7R82RxGTbfAWU3olGBaGfn8",
-            authDomain: "p4trainer-268bf.firebaseapp.com",
-            projectId: "p4trainer-268bf",
-            storageBucket: "p4trainer-268bf.firebasestorage.app",
-            messagingSenderId: "249928558281",
-            appId: "1:249928558281:web:0de427b8ce07cb0f0d8f18",
-            measurementId: "G-CE01C7Z0LB"
+    <div id="numeroModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title" id="numeroModalTitle">Número</div>
+                <button class="close-button" onclick="fecharModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <label class="label">Comprador</label>
+                <input type="text" id="compradorInput" class="input" placeholder="Nome do comprador">
+                <label class="label">Telefone</label>
+                <input type="tel" id="telefoneInput" class="input" placeholder="(00) 00000-0000">
+                <button id="salvarBtn" class="primary-button">
+                    💾 Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="configModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">Configurações</div>
+                <button class="close-button" onclick="fecharConfigModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <label class="label">Nome do Vendedor</label>
+                <input type="text" id="vendedorConfigInput" class="input" placeholder="Digite seu nome">
+                <div class="row">
+                    <div class="half-input">
+                        <label class="label">Número Inicial</label>
+                        <input type="number" id="inicioConfigInput" class="input">
+                    </div>
+                    <div class="half-input">
+                        <label class="label">Número Final</label>
+                        <input type="number" id="fimConfigInput" class="input">
+                    </div>
+                </div>
+                <button onclick="salvarConfiguracoes()" class="primary-button">
+                    Salvar Configurações
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="exportModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">Exportar Dados</div>
+                <button class="close-button" onclick="fecharExportModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <button onclick="exportarDados()" class="primary-button" style="background: #3B82F6;">
+                    📤 Compartilhar Relatório
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================================================================
+        // CONFIGURAÇÃO GOOGLE - ATUALIZADO
+        // ==================================================================
+        const GOOGLE_CLIENT_ID = '469226201678-rf8qdoccbhv1j56dldtga4fnbrqtnvrh.apps.googleusercontent.com';
+        const GOOGLE_API_KEY = 'AIzaSyBHgoFJVRAW-mg4kVJDoOY9-LhLBC4jKVo';
+        const DRIVE_APP_FOLDER = 'RifaACS_Data';
+        const DRIVE_FILE_NAME = 'rifaacs_backup.json';
+        // ==================================================================
+
+        let vendedor = '';
+        let intervaloInicio = 101;
+        let intervaloFim = 200;
+        let numeros = [];
+        let numeroSelecionado = null;
+        let googleTokenClient;
+        let googleAccessToken;
+        let googleDriveFileId = null;
+
+        const STORAGE_KEYS = {
+            vendedor: 'rifaacs_vendedor',
+            intervaloInicio: 'rifaacs_inicio',
+            intervaloFim: 'rifaacs_fim',
+            numeros: 'rifaacs_numeros',
+            configurado: 'rifaacs_configurado'
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        // Estado global
-        window.currentUser = null;
-        window.currentWorkout = null;
-        window.students = [];
-        window.workouts = [];
-
-        // Monitor de autenticação
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // Verificar se é admin
-                if (user.email === 'admin@p4trainer.com') {
-                    window.currentUser = { type: 'admin', uid: user.uid, email: user.email };
-                    showAdminScreen();
-                } else {
-                    // Buscar dados do aluno no Firestore
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        window.currentUser = { type: 'student', uid: user.uid, ...userData };
-                        document.getElementById('studentWelcome').textContent = `👋 Olá, ${userData.name}!`;
-                        showScreen('studentScreen');
-                        loadStudentWorkouts();
-                    }
+        async function salvarDados() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.vendedor, vendedor);
+                localStorage.setItem(STORAGE_KEYS.intervaloInicio, intervaloInicio.toString());
+                localStorage.setItem(STORAGE_KEYS.intervaloFim, intervaloFim.toString());
+                localStorage.setItem(STORAGE_KEYS.numeros, JSON.stringify(numeros));
+                localStorage.setItem(STORAGE_KEYS.configurado, 'true');
+                mostrarIndicadorSalvamento('local');
+                
+                if (googleAccessToken) {
+                    await salvarDadosNoDrive();
                 }
+
+            } catch (e) {
+                console.warn('Não foi possível salvar os dados:', e);
+            }
+        }
+        
+        async function carregarDados() {
+            if (googleAccessToken) {
+                const dadosDrive = await carregarDadosDoDrive();
+                if (dadosDrive) {
+                    vendedor = dadosDrive.vendedor;
+                    intervaloInicio = dadosDrive.intervaloInicio;
+                    intervaloFim = dadosDrive.intervaloFim;
+                    numeros = dadosDrive.numeros;
+                    return true;
+                }
+            }
+            
+            try {
+                const configurado = localStorage.getItem(STORAGE_KEYS.configurado);
+                if (!configurado) return false;
+
+                vendedor = localStorage.getItem(STORAGE_KEYS.vendedor) || '';
+                intervaloInicio = parseInt(localStorage.getItem(STORAGE_KEYS.intervaloInicio)) || 101;
+                intervaloFim = parseInt(localStorage.getItem(STORAGE_KEYS.intervaloFim)) || 200;
+                const numerosData = localStorage.getItem(STORAGE_KEYS.numeros);
+                if (numerosData) {
+                    numeros = JSON.parse(numerosData);
+                }
+                return true;
+            } catch (e) {
+                console.warn('Erro ao carregar dados locais:', e);
+                return false;
+            }
+        }
+
+        function limparDados() {
+            try {
+                Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+            } catch (e) {
+                console.warn('Erro ao limpar dados:', e);
+            }
+        }
+
+        function mostrarIndicadorSalvamento(tipo = 'local') {
+            const indicator = document.getElementById('autoSaveIndicator');
+            if (tipo === 'nuvem') {
+                indicator.textContent = '☁️ Dados salvos na nuvem';
+                indicator.style.background = '#3B82F6';
             } else {
-                // Usuário não logado
-                window.currentUser = null;
-                showScreen('loginScreen');
+                indicator.textContent = '💾 Dados salvos localmente';
+                indicator.style.background = '#10B981';
             }
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2500);
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            document.getElementById('googleSignInBtn').addEventListener('click', handleAuthClick);
+            const vendedorInput = document.getElementById('vendedorInput');
+            const comecarBtn = document.getElementById('comecarBtn');
+            vendedorInput.addEventListener('input', () => {
+                comecarBtn.disabled = !vendedorInput.value.trim();
+            });
+            comecarBtn.addEventListener('click', inicializarApp);
+            
+            document.getElementById('exportBtn').addEventListener('click', () => mostrarModal('exportModal'));
+            document.getElementById('configBtn').addEventListener('click', mostrarConfigModal);
+            document.getElementById('resetBtn').addEventListener('click', resetarApp);
+            document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
+            window.addEventListener('beforeunload', salvarDados);
+            setInterval(salvarDados, 45000);
         });
 
-        // Funções de navegação
-        window.showScreen = function(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => screen.classList.add('hidden'));
-            document.getElementById(screenId).classList.remove('hidden');
-        }
+        // --- Funções de Integração Google ---
 
-        window.logout = async function() {
-            try {
-                await signOut(auth);
-                window.currentUser = null;
-                showScreen('loginScreen');
-                document.getElementById('loginForm').reset();
-            } catch (error) {
-                console.error('Erro ao fazer logout:', error);
-                alert('Erro ao sair: ' + error.message);
-            }
-        }
-
-        window.showAdminScreen = function() {
-            showScreen('adminScreen');
-            loadWorkouts();
-        }
-
-        window.showStudentManagement = function() {
-            showScreen('studentSelectionScreen');
-            loadStudents();
-        }
-
-        // Login
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-
-            if (!username || !password) {
-                alert('Preencha todos os campos!');
+        window.onload = () => {
+            if (GOOGLE_CLIENT_ID.startsWith('SEU_ID')) {
+                alert('CONFIGURAÇÃO INCOMPLETA: Insira seu ID de Cliente do Google no código HTML.');
                 return;
             }
+            googleTokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: handleCredentialResponse,
+            });
+        };
 
-            try {
-                // Verificar se é login de admin
-                if (username === 'admin' && password === 'p4trainer') {
-                    await signInWithEmailAndPassword(auth, 'admin@p4trainer.com', 'p4trainer123');
-                    return;
-                }
+        function handleAuthClick() {
+            googleTokenClient.requestAccessToken({ prompt: 'consent' });
+        }
+        
+        async function handleCredentialResponse(response) {
+            if (response.error) {
+                console.error('Erro de autenticação:', response.error);
+                alert('Falha na autenticação com o Google. Tente novamente.');
+                return;
+            }
+            googleAccessToken = response.access_token;
+            console.log("Autenticado com sucesso!");
+            
+            gapi.load('client', async () => {
+                gapi.client.setApiKey(GOOGLE_API_KEY);
+                await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/drive/v3/rest');
+                console.log("API do Drive carregada.");
 
-                // Login de aluno - buscar por username
-                const usersSnapshot = await getDocs(collection(db, 'users'));
-                let studentEmail = null;
-                
-                usersSnapshot.forEach(doc => {
-                    const userData = doc.data();
-                    if (userData.username === username && userData.type === 'student') {
-                        studentEmail = userData.email;
-                    }
-                });
+                document.getElementById('syncStatus').textContent = 'Conectado. Sincronizando...';
+                document.getElementById('syncStatus').classList.add('connected');
+                document.getElementById('googleSignInBtn').textContent = 'Reconectar com Google';
 
-                if (studentEmail) {
-                    await signInWithEmailAndPassword(auth, studentEmail, password);
+                const dadosCarregados = await carregarDados();
+                if (dadosCarregados && vendedor) {
+                    alert('Dados da nuvem carregados com sucesso!');
+                    irParaAppPrincipal();
                 } else {
-                    alert('Usuário não encontrado! Verifique seu username.');
+                    alert('Nenhum backup encontrado. Preencha os campos para criar uma nova rifa.');
+                    const dadosLocaisCarregados = await carregarDados(); // Tenta carregar local
+                    if (dadosLocaisCarregados && vendedor) {
+                         irParaAppPrincipal();
+                    }
                 }
-                
-            } catch (error) {
-                console.error('Erro no login:', error);
-                let errorMessage = 'Erro no login. ';
-                
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        errorMessage += 'Usuário não encontrado.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage += 'Senha incorreta.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage += 'Email inválido.';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage += 'Muitas tentativas. Tente novamente mais tarde.';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                
-                alert(errorMessage);
-            }
-        });
-
-        // Gerenciamento de alunos
-        window.loadStudents = async function() {
-            const usersSnapshot = await getDocs(query(collection(db, 'users'), where('type', '==', 'student')));
-            window.students = [];
-            usersSnapshot.forEach(doc => {
-                window.students.push({ id: doc.id, ...doc.data() });
-            });
-            renderStudents();
-            updateStudentSelects();
-        }
-
-        window.renderStudents = function() {
-            const container = document.getElementById('studentsList');
-            container.innerHTML = '';
-            
-            window.students.forEach(student => {
-                const studentCard = document.createElement('div');
-                studentCard.className = 'student-card';
-                studentCard.innerHTML = `
-                    <div class="student-name">${student.name}</div>
-                    <div class="student-workouts">Usuário: ${student.username} | Email: ${student.email}</div>
-                    <div class="admin-actions">
-                        <button class="btn-small btn-danger" onclick="deleteStudent('${student.id}')">Excluir</button>
-                    </div>
-                `;
-                container.appendChild(studentCard);
             });
         }
-
-        window.createStudent = async function() {
-            const name = document.getElementById('newStudentName').value.trim();
-            if (!name) {
-                alert('Digite o nome do aluno!');
-                return;
-            }
-
-            const username = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
-            const email = `${username}@p4trainer.com`;
-            const password = 'p4trainer123'; // Senha padrão
-
-            try {
-                // Criar usuário no Firebase Auth
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                // Salvar dados adicionais no Firestore
-                await setDoc(doc(db, 'users', user.uid), {
-                    name: name,
-                    username: username,
-                    email: email,
-                    type: 'student',
-                    createdAt: new Date()
+        
+        async function getOrCreateAppFolderId() {
+            const response = await gapi.client.drive.files.list({
+                q: `mimeType='application/vnd.google-apps.folder' and name='${DRIVE_APP_FOLDER}' and trashed=false`,
+                fields: 'files(id, name)',
+            });
+            if (response.result.files && response.result.files.length > 0) {
+                return response.result.files[0].id;
+            } else {
+                const folderResponse = await gapi.client.drive.files.create({
+                    resource: { name: DRIVE_APP_FOLDER, mimeType: 'application/vnd.google-apps.folder' },
+                    fields: 'id'
                 });
-                
-                document.getElementById('newStudentName').value = '';
-                loadStudents();
-                alert(`Aluno criado com sucesso!\n\nDados de login:\nUsuário: ${username}\nSenha: ${password}\n\n(O aluno pode usar o username para fazer login)`);
-                
-                // Fazer logout do usuário recém-criado para não interferir na sessão do admin
-                await signOut(auth);
-                
-            } catch (error) {
-                console.error('Erro ao criar aluno:', error);
-                let errorMessage = 'Erro ao criar aluno: ';
-                
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage += 'Este email já está em uso.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage += 'A senha deve ter pelo menos 6 caracteres.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage += 'Email inválido.';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                
-                alert(errorMessage);
+                return folderResponse.result.id;
             }
         }
-
-        window.deleteStudent = async function(studentId) {
-            if (confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
-                try {
-                    // Primeiro, deletar todos os treinos do aluno
-                    const workoutsQuery = query(collection(db, 'workouts'), where('studentId', '==', studentId));
-                    const workoutsSnapshot = await getDocs(workoutsQuery);
-                    
-                    // Deletar treinos
-                    const deletePromises = [];
-                    workoutsSnapshot.forEach(doc => {
-                        deletePromises.push(deleteDoc(doc.ref));
-                    });
-                    await Promise.all(deletePromises);
-                    
-                    // Deletar dados do usuário no Firestore
-                    await deleteDoc(doc(db, 'users', studentId));
-                    
-                    loadStudents();
-                    loadWorkouts();
-                    alert('Aluno excluído com sucesso!');
-                    
-                } catch (error) {
-                    console.error('Erro ao excluir aluno:', error);
-                    alert('Erro ao excluir aluno: ' + error.message);
-                }
-            }
-        }
-
-        // Gerenciamento de treinos
-        window.loadWorkouts = async function() {
-            const workoutsSnapshot = await getDocs(collection(db, 'workouts'));
-            window.workouts = [];
-            workoutsSnapshot.forEach(doc => {
-                window.workouts.push({ id: doc.id, ...doc.data() });
+        
+        async function getOrCreateFileId(folderId) {
+             const response = await gapi.client.drive.files.list({
+                q: `'${folderId}' in parents and name='${DRIVE_FILE_NAME}' and trashed=false`,
+                fields: 'files(id)',
             });
-            renderWorkouts();
+            return (response.result.files && response.result.files.length > 0) ? response.result.files[0].id : null;
         }
 
-        window.renderWorkouts = function() {
-            const container = document.getElementById('workoutsList');
-            container.innerHTML = '';
-            
-            window.workouts.forEach(workout => {
-                const student = window.students.find(s => s.id === workout.studentId);
-                const studentName = student ? student.name : 'Aluno não encontrado';
-                
-                const workoutCard = document.createElement('div');
-                workoutCard.className = 'workout-card';
-                workoutCard.innerHTML = `
-                    <div class="workout-day">${capitalizeFirst(workout.day)} - ${studentName}</div>
-                    ${workout.exercises.map(exercise => `
-                        <div class="exercise-item">
-                            ${exercise.image ? `<img src="${exercise.image}" class="exercise-image" alt="${exercise.name}">` : '<div class="exercise-image"></div>'}
-                            <div class="exercise-details">
-                                <div class="exercise-name">${exercise.name}</div>
-                                <div class="exercise-reps">${exercise.sets} séries x ${exercise.reps} repetições</div>
-                            </div>
-                        </div>
-                    `).join('')}
-                    <div class="admin-actions">
-                        <button class="btn-small btn-secondary" onclick="editWorkout('${workout.id}')">Editar</button>
-                        <button class="btn-small btn-danger" onclick="deleteWorkout('${workout.id}')">Excluir</button>
-                    </div>
-                `;
-                container.appendChild(workoutCard);
-            });
-        }
-
-        window.loadStudentWorkouts = async function() {
-            const q = query(collection(db, 'workouts'), where('studentId', '==', window.currentUser.uid));
-            const workoutsSnapshot = await getDocs(q);
-            const studentWorkouts = [];
-            workoutsSnapshot.forEach(doc => {
-                studentWorkouts.push({ id: doc.id, ...doc.data() });
-            });
-            renderStudentWorkouts(studentWorkouts);
-        }
-
-        window.renderStudentWorkouts = function(workouts) {
-            const container = document.getElementById('studentWorkouts');
-            container.innerHTML = '';
-            
-            if (workouts.length === 0) {
-                container.innerHTML = '<div class="card"><p>Nenhum treino foi criado para você ainda.</p></div>';
-                return;
-            }
-            
-            workouts.forEach(workout => {
-                const workoutCard = document.createElement('div');
-                workoutCard.className = 'workout-card';
-                workoutCard.innerHTML = `
-                    <div class="workout-day">${capitalizeFirst(workout.day)}</div>
-                    ${workout.exercises.map(exercise => `
-                        <div class="exercise-item">
-                            ${exercise.image ? `<img src="${exercise.image}" class="exercise-image" alt="${exercise.name}">` : '<div class="exercise-image"></div>'}
-                            <div class="exercise-details">
-                                <div class="exercise-name">${exercise.name}</div>
-                                <div class="exercise-reps">${exercise.sets} séries x ${exercise.reps} repetições</div>
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-                container.appendChild(workoutCard);
-            });
-        }
-
-        // Modal de treino
-        window.showCreateWorkout = function() {
-            window.currentWorkout = null;
-            document.getElementById('modalTitle').textContent = 'Criar Novo Treino';
-            resetWorkoutModal();
-            document.getElementById('workoutModal').classList.remove('hidden');
-        }
-
-        window.editWorkout = function(workoutId) {
-            const workout = window.workouts.find(w => w.id === workoutId);
-            if (!workout) return;
-            
-            window.currentWorkout = workout;
-            document.getElementById('modalTitle').textContent = 'Editar Treino';
-            
-            // Preencher formulário
-            document.getElementById('modalStudentSelect').value = workout.studentId;
-            document.querySelector(`[data-day="${workout.day}"]`).classList.add('active');
-            
-            // Preencher exercícios
-            const container = document.getElementById('exercisesContainer');
-            container.innerHTML = '';
-            workout.exercises.forEach(exercise => {
-                addExercise(exercise);
-            });
-            
-            document.getElementById('workoutModal').classList.remove('hidden');
-        }
-
-        window.closeModal = function() {
-            document.getElementById('workoutModal').classList.add('hidden');
-            resetWorkoutModal();
-        }
-
-        window.resetWorkoutModal = function() {
-            document.getElementById('modalStudentSelect').value = '';
-            document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('exercisesContainer').innerHTML = '';
-            addExercise(); // Adicionar um exercício vazio
-        }
-
-        window.addExercise = function(exerciseData = null) {
-            const container = document.getElementById('exercisesContainer');
-            const exerciseDiv = document.createElement('div');
-            exerciseDiv.className = 'exercise-item';
-            exerciseDiv.style.flexDirection = 'column';
-            exerciseDiv.innerHTML = `
-                <div style="display: flex; gap: 10px; width: 100%; align-items: flex-start;">
-                    <div style="flex: 1;">
-                        <input type="text" placeholder="Nome do exercício" class="form-control" value="${exerciseData ? exerciseData.name : ''}" style="margin-bottom: 10px;">
-                        <div style="display: flex; gap: 10px;">
-                            <input type="number" placeholder="Séries" class="form-control" value="${exerciseData ? exerciseData.sets : ''}" min="1">
-                            <input type="number" placeholder="Repetições" class="form-control" value="${exerciseData ? exerciseData.reps : ''}" min="1">
-                        </div>
-                    </div>
-                    <button type="button" class="btn-small btn-danger" onclick="removeExercise(this)">Remover</button>
-                </div>
-                <div style="width: 100%; margin-top: 10px;">
-                    <input type="file" accept="image/*" class="form-control" onchange="previewImage(this)">
-                    ${exerciseData && exerciseData.image ? `<img src="${exerciseData.image}" class="image-preview" alt="Preview">` : ''}
-                </div>
-            `;
-            container.appendChild(exerciseDiv);
-        }
-
-        window.removeExercise = function(button) {
-            button.closest('.exercise-item').remove();
-        }
-
-        window.previewImage = function(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    let preview = input.parentNode.querySelector('.image-preview');
-                    if (!preview) {
-                        preview = document.createElement('img');
-                        preview.className = 'image-preview';
-                        input.parentNode.appendChild(preview);
-                    }
-                    preview.src = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // Seleção de dias
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('day-btn')) {
-                document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
-                e.target.classList.add('active');
-            }
-        });
-
-        window.saveWorkout = async function() {
-            const studentId = document.getElementById('modalStudentSelect').value;
-            const dayBtn = document.querySelector('.day-btn.active');
-            const day = dayBtn ? dayBtn.dataset.day : null;
-            
-            if (!studentId || !day) {
-                alert('Preencha todos os campos obrigatórios!');
-                return;
-            }
-            
-            const exercises = [];
-            const exerciseItems = document.querySelectorAll('#exercisesContainer .exercise-item');
-            
-            for (let item of exerciseItems) {
-                const name = item.querySelector('input[placeholder="Nome do exercício"]').value.trim();
-                const sets = parseInt(item.querySelector('input[placeholder="Séries"]').value);
-                const reps = parseInt(item.querySelector('input[placeholder="Repetições"]').value);
-                const imageFile = item.querySelector('input[type="file"]').files[0];
-                
-                if (!name || !sets || !reps) {
-                    alert('Preencha todos os campos dos exercícios!');
-                    return;
-                }
-                
-                let imageUrl = '';
-                if (imageFile) {
-                    try {
-                        const imageRef = ref(storage, `exercises/${Date.now()}_${imageFile.name}`);
-                        await uploadBytes(imageRef, imageFile);
-                        imageUrl = await getDownloadURL(imageRef);
-                    } catch (error) {
-                        console.error('Erro ao fazer upload da imagem:', error);
-                    }
-                } else if (window.currentWorkout) {
-                    // Manter imagem existente se estiver editando
-                    const existingExercise = window.currentWorkout.exercises.find(e => e.name === name);
-                    imageUrl = existingExercise ? existingExercise.image || '' : '';
-                }
-                
-                exercises.push({ name, sets, reps, image: imageUrl });
-            }
-            
-            const workoutData = {
-                studentId,
-                day,
-                exercises,
-                updatedAt: new Date()
-            };
-            
+        async function salvarDadosNoDrive() {
+            if (!gapi.client.drive) return;
             try {
-                if (window.currentWorkout) {
-                    await updateDoc(doc(db, 'workouts', window.currentWorkout.id), workoutData);
+                const folderId = await getOrCreateAppFolderId();
+                if(!googleDriveFileId) {
+                    googleDriveFileId = await getOrCreateFileId(folderId);
+                }
+                const rifaData = { vendedor, intervaloInicio, intervaloFim, numeros, lastModified: new Date().toISOString() };
+                const fileContent = JSON.stringify(rifaData);
+                const boundary = '-------314159265358979323846';
+                const delimiter = `\r\n--${boundary}\r\n`;
+                const close_delim = `\r\n--${boundary}--`;
+                const metadata = { name: DRIVE_FILE_NAME, mimeType: 'application/json' };
+                
+                let path, method;
+                if (googleDriveFileId) {
+                    path = `/upload/drive/v3/files/${googleDriveFileId}`;
+                    method = 'PATCH';
                 } else {
-                    await addDoc(collection(db, 'workouts'), {
-                        ...workoutData,
-                        createdAt: new Date()
-                    });
+                    path = '/upload/drive/v3/files';
+                    method = 'POST';
+                    metadata.parents = [folderId];
                 }
+                const multipartRequestBody = delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/json\r\n\r\n' + fileContent + close_delim;
+                const response = await gapi.client.request({ path, method, params: {'uploadType': 'multipart'}, headers: {'Content-Type': `multipart/related; boundary="${boundary}"`}, body: multipartRequestBody });
                 
-                closeModal();
-                loadWorkouts();
-                alert('Treino salvo com sucesso!');
+                if (!googleDriveFileId) googleDriveFileId = response.result.id;
+                console.log('Dados salvos no Drive:', response.result);
+                mostrarIndicadorSalvamento('nuvem');
             } catch (error) {
-                alert('Erro ao salvar treino: ' + error.message);
+                console.error('Erro ao salvar no Google Drive:', error);
             }
         }
 
-        window.deleteWorkout = async function(workoutId) {
-            if (confirm('Tem certeza que deseja excluir este treino?')) {
-                try {
-                    await deleteDoc(doc(db, 'workouts', workoutId));
-                    loadWorkouts();
-                } catch (error) {
-                    alert('Erro ao excluir treino: ' + error.message);
-                }
-            }
-        }
-
-        window.updateStudentSelects = function() {
-            const select = document.getElementById('modalStudentSelect');
-            select.innerHTML = '<option value="">Selecione um aluno</option>';
-            window.students.forEach(student => {
-                const option = document.createElement('option');
-                option.value = student.id;
-                option.textContent = student.name;
-                select.appendChild(option);
-            });
-        }
-
-        // Utilitários
-        window.capitalizeFirst = function(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
-
-        // Inicialização
-        window.onload = async function() {
-            // Criar conta admin se não existir
+        async function carregarDadosDoDrive() {
             try {
-                await signInWithEmailAndPassword(auth, 'admin@p4trainer.com', 'p4trainer123');
-                await signOut(auth);
+                const folderId = await getOrCreateAppFolderId();
+                const fileId = await getOrCreateFileId(folderId);
+                googleDriveFileId = fileId;
+                if (!fileId) return null;
+                const response = await gapi.client.drive.files.get({ fileId, alt: 'media' });
+                console.log("Dados carregados do Drive.");
+                return response.result;
             } catch (error) {
-                if (error.code === 'auth/user-not-found') {
-                    try {
-                        const adminCredential = await createUserWithEmailAndPassword(auth, 'admin@p4trainer.com', 'p4trainer123');
-                        await setDoc(doc(db, 'users', adminCredential.user.uid), {
-                            name: 'Administrador',
-                            username: 'admin',
-                            email: 'admin@p4trainer.com',
-                            type: 'admin',
-                            createdAt: new Date()
-                        });
-                        await signOut(auth);
-                    } catch (createError) {
-                        console.error('Erro ao criar conta admin:', createError);
-                    }
+                console.error("Erro ao carregar dados do Drive:", error);
+                return null;
+            }
+        }
+
+        // --- Funções Originais do App ---
+
+        function irParaAppPrincipal() {
+            document.getElementById('setupScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('vendedorHeader').textContent = `Vendedor: ${vendedor}`;
+            document.getElementById('vendedorInput').value = vendedor;
+            document.getElementById('inicioInput').value = intervaloInicio;
+            document.getElementById('fimInput').value = intervaloFim;
+            document.getElementById('comecarBtn').disabled = false;
+            atualizarGrid();
+            atualizarEstatisticas();
+        }
+
+        function inicializarApp() {
+            vendedor = document.getElementById('vendedorInput').value.trim();
+            intervaloInicio = parseInt(document.getElementById('inicioInput').value) || 101;
+            intervaloFim = parseInt(document.getElementById('fimInput').value) || 200;
+            if (!vendedor) return;
+            inicializarNumeros();
+            irParaAppPrincipal();
+            salvarDados();
+        }
+
+        function inicializarNumeros() {
+            if (numeros.length === 0) {
+                numeros = [];
+                for (let i = intervaloInicio; i <= intervaloFim; i++) {
+                    numeros.push({ numero: i, comprador: '', telefone: '', vendido: false });
                 }
             }
-            
-            loadStudents();
         }
+
+        function atualizarGrid() {
+            const grid = document.getElementById('numerosGrid');
+            grid.innerHTML = '';
+            const numerosPorLinha = 5;
+            for (let i = 0; i < numeros.length; i += numerosPorLinha) {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+                for (let j = i; j < Math.min(i + numerosPorLinha, numeros.length); j++) {
+                    const numeroData = numeros[j];
+                    const button = document.createElement('button');
+                    button.className = `numero-button ${numeroData.vendido ? 'numero-vendido' : 'numero-disponivel'}`;
+                    button.textContent = numeroData.numero;
+                    button.onclick = () => abrirModalNumero(numeroData.numero);
+                    row.appendChild(button);
+                }
+                grid.appendChild(row);
+            }
+        }
+
+        function atualizarEstatisticas() {
+            const vendidos = numeros.filter(n => n.vendido).length;
+            const total = numeros.length;
+            const disponiveis = total - vendidos;
+            document.getElementById('vendidosCount').textContent = vendidos;
+            document.getElementById('disponiveisCount').textContent = disponiveis;
+            document.getElementById('totalCount').textContent = total;
+        }
+
+        function abrirModalNumero(numero) {
+            const numeroData = numeros.find(n => n.numero === numero);
+            numeroSelecionado = numero;
+            document.getElementById('numeroModalTitle').textContent = `Número ${numero}`;
+            document.getElementById('compradorInput').value = numeroData.comprador;
+            document.getElementById('telefoneInput').value = numeroData.telefone;
+            mostrarModal('numeroModal');
+        }
+
+        function salvarNumero() {
+            if (numeroSelecionado === null) return;
+            const comprador = document.getElementById('compradorInput').value;
+            const telefone = document.getElementById('telefoneInput').value;
+            const numeroIndex = numeros.findIndex(n => n.numero === numeroSelecionado);
+            if (numeroIndex !== -1) {
+                numeros[numeroIndex] = { ...numeros[numeroIndex], comprador, telefone, vendido: comprador.trim() !== '' };
+            }
+            fecharModal();
+            atualizarGrid();
+            atualizarEstatisticas();
+            salvarDados();
+        }
+
+        function mostrarConfigModal() {
+            document.getElementById('vendedorConfigInput').value = vendedor;
+            document.getElementById('inicioConfigInput').value = intervaloInicio;
+            document.getElementById('fimConfigInput').value = intervaloFim;
+            mostrarModal('configModal');
+        }
+
+        function salvarConfiguracoes() {
+            const novoVendedor = document.getElementById('vendedorConfigInput').value.trim();
+            const novoInicio = parseInt(document.getElementById('inicioConfigInput').value);
+            const novoFim = parseInt(document.getElementById('fimConfigInput').value);
+            if (novoVendedor && novoInicio && novoFim && novoInicio <= novoFim) {
+                if (novoInicio !== intervaloInicio || novoFim !== intervaloFim) {
+                    if (confirm('Alterar o intervalo irá resetar todos os números. Continuar?')) {
+                        vendedor = novoVendedor;
+                        intervaloInicio = novoInicio;
+                        intervaloFim = novoFim;
+                        numeros = [];
+                        inicializarNumeros();
+                        atualizarGrid();
+                        atualizarEstatisticas();
+                    }
+                } else {
+                    vendedor = novoVendedor;
+                }
+                document.getElementById('vendedorHeader').textContent = `Vendedor: ${vendedor}`;
+                salvarDados();
+            }
+            fecharConfigModal();
+        }
+
+        function resetarApp() {
+            if (confirm('Tem certeza que deseja resetar todos os dados? Esta ação não pode ser desfeita e irá limpar os dados locais.')) {
+                limparDados();
+                location.reload();
+            }
+        }
+
+        function exportarDados() {
+            const vendidos = numeros.filter(n => n.vendido);
+            let conteudo = `RELATÓRIO DE RIFA - ${vendedor}\n`;
+            conteudo += `Data: ${new Date().toLocaleDateString('pt-BR')}\n`;
+            conteudo += `Responsável pela venda: ${vendedor}\n\nNÚMEROS VENDIDOS:\n================\n\n`;
+            vendidos.forEach(n => {
+                conteudo += `Número: ${n.numero}\nComprador: ${n.comprador}\nTelefone: ${n.telefone}\n------------------------\n`;
+            });
+            conteudo += `\nTotal de números vendidos: ${vendidos.length}\nTotal de números disponíveis: ${numeros.length - vendidos.length}`;
+            if (navigator.share) {
+                navigator.share({ title: `Relatório de Rifa - ${vendedor}`, text: conteudo }).catch(console.log);
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(conteudo).then(() => { alert('Relatório copiado!'); });
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = conteudo; document.body.appendChild(ta);
+                ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                alert('Relatório copiado!');
+            }
+            fecharExportModal();
+        }
+
+        function mostrarModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
+        function fecharModal() { document.getElementById('numeroModal').classList.add('hidden'); numeroSelecionado = null; }
+        function fecharConfigModal() { document.getElementById('configModal').classList.add('hidden'); }
+        function fecharExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
+        document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) { e.target.classList.add('hidden'); } });
     </script>
 </body>
 </html>
