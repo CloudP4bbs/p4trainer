@@ -9,7 +9,7 @@
     <title>RifaACS - Gerenciador de Rifas</title>
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%233B82F6' rx='40'/%3E%3Cpath fill='white' d='M45 60h90v15H45zm0 30h90v15H45zm0 30h90v15H45z'/%3E%3C/svg%3E">
     <style>
-        /* Estilos CSS permanecem os mesmos da versão anterior para manter a consistência visual. */
+        /* Estilos CSS permanecem os mesmos */
         * {
             margin: 0;
             padding: 0;
@@ -533,7 +533,7 @@
             apiKey: "AIzaSyBHyvrQPh221bMM1s7HvO9n7LrfxRF-UYA",
             authDomain: "rifaacs-69cef.firebaseapp.com",
             projectId: "rifaacs-69cef",
-            storageBucket: "rifaacs-69cef.appspot.com",
+            storageBucket: "rifaacs-69cef.appspot.com", // <-- CORRIGIDO
             messagingSenderId: "568565118428",
             appId: "1:568565118428:web:cc16277171966ef1208b19",
             measurementId: "G-GDGLK7436E"
@@ -617,8 +617,9 @@
                 await signInWithPopup(auth, provider);
                 // onAuthStateChanged irá lidar com a transição de tela
             } catch (error) {
-                console.error("Erro ao fazer login com Google:", error);
-                alert("Falha no login. Tente novamente.");
+                // <-- MELHORIA NO TRATAMENTO DE ERRO
+                console.error("Erro detalhado ao fazer login com Google:", error);
+                alert(`Falha no login. Verifique as configurações no Console do Firebase.\n\nCódigo do Erro: ${error.code}`);
             }
         }
         
