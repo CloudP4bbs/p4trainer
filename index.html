@@ -8,98 +8,445 @@
     <meta name="apple-mobile-web-app-title" content="RifaACS">
     <title>RifaACS - Gerenciador de Rifas</title>
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%233B82F6' rx='40'/%3E%3Cpath fill='white' d='M45 60h90v15H45zm0 30h90v15H45zm0 30h90v15H45z'/%3E%3C/svg%3E">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://apis.google.com/js/api.js" async defer></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6; color: #374151; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; touch-action: manipulation; }
-        .container { min-height: 100vh; display: flex; flex-direction: column; }
-        .setup-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; min-height: 100vh; }
-        .logo-container { text-align: center; margin-bottom: 40px; }
-        .app-icon { width: 80px; height: 80px; background: #3B82F6; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 40px; color: white; }
-        .app-title { font-size: 32px; font-weight: bold; color: #374151; margin-bottom: 8px; }
-        .app-subtitle { font-size: 16px; color: #6B7280; }
-        .form-container { width: 100%; max-width: 400px; background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .label { font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; margin-top: 16px; display: block; }
-        .input { width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 12px; font-size: 16px; background: white; color: #374151; -webkit-appearance: none; appearance: none; }
-        .input:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        .row { display: flex; gap: 12px; }
-        .half-input { flex: 1; }
-        .primary-button { width: 100%; background: #3B82F6; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 500; margin-top: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
-        .primary-button:hover:not(:disabled) { background: #2563EB; }
-        .primary-button:disabled { background: #D1D5DB; cursor: not-allowed; }
-        .header { background: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .header-icon { width: 40px; height: 40px; background: #3B82F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
-        .header-title { font-size: 20px; font-weight: bold; color: #374151; }
-        .header-subtitle { font-size: 14px; color: #6B7280; }
-        .header-buttons { display: flex; gap: 8px; }
-        .header-button { width: 40px; height: 40px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; }
-        .header-button:hover { opacity: 0.9; }
-        .content { flex: 1; padding: 16px; overflow-y: auto; }
-        .stats-container { display: flex; gap: 12px; margin-bottom: 24px; }
-        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
-        .stat-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
-        .stat-label { font-size: 12px; color: #6B7280; }
-        .grid-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
-        
-        /* CORREÇÃO DE FORMATAÇÃO DO GRID */
-        #numerosGrid {
+        /* Estilos CSS permanecem os mesmos da versão anterior para manter a consistência visual. */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #F3F4F6;
+            color: #374151;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
+        .container {
+            min-height: 100vh;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+        }
+
+        /* Setup Screen */
+        .setup-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: #3B82F6;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 40px;
+            color: white;
+        }
+
+        .app-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .app-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            margin-top: 16px;
+            display: block;
+        }
+
+        .input {
+            width: 100%;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            background: white;
+            color: #374151;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .half-input {
+            flex: 1;
+        }
+
+        .primary-button {
+            width: 100%;
+            background: #3B82F6;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .primary-button:hover:not(:disabled) {
+            background: #2563EB;
+        }
+
+        .primary-button:disabled {
+            background: #D1D5DB;
+            cursor: not-allowed;
+        }
+
+        /* Main App */
+        .header {
+            background: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: #3B82F6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .header-buttons {
+            display: flex;
             gap: 8px;
         }
 
-        .numero-button { width: 50px; height: 50px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
-        .numero-disponivel { background: white; border-color: #D1D5DB; color: #374151; }
-        .numero-disponivel:hover { border-color: #3B82F6; background: #F3F4F6; }
-        .numero-vendido { background: #10B981; border-color: #059669; color: white; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
-        .modal-container { background: white; border-radius: 16px; width: 100%; max-width: 400px; max-height: 80vh; overflow: hidden; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #E5E7EB; }
-        .modal-title { font-size: 20px; font-weight: bold; color: #374151; }
-        .close-button { width: 32px; height: 32px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #374151; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
-        .close-button:hover { background: #F3F4F6; }
-        .modal-content { padding: 20px; overflow-y: auto; }
-        .hidden { display: none !important; }
-        .auto-save-indicator { position: fixed; bottom: 20px; right: 20px; background: #10B981; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 1001; }
-        .auto-save-indicator.show { opacity: 1; }
-        .google-btn { background-color: #4285F4; color: white; margin-top: 16px; }
-        .google-btn:hover { background-color: #357ae8; }
-        .google-icon { width: 20px; height: 20px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .sync-status { font-size: 12px; text-align: center; color: #6B7280; margin-top: 16px; }
-        .sync-status.connected { color: #10B981; }
-        .sync-indicator { position: fixed; bottom: 60px; right: 20px; background: #3B82F6; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 1001; }
-        .sync-indicator.show { opacity: 1; }
-        .sync-indicator.error { background: #EF4444; }
-        @media screen and (-webkit-min-device-pixel-ratio: 0) { select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"] { font-size: 16px; } }
-        @media (max-width: 480px) { .form-container { margin: 0 10px; padding: 20px; } .numero-button { width: 45px; height: 45px; } .stats-container { flex-direction: column; gap: 8px; } .stat-card { padding: 16px; } .header-buttons { gap: 4px; } }
+        .header-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: opacity 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .header-button:hover {
+            opacity: 0.9;
+        }
+        
+        #syncStatus {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        .grid-container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .numero-button {
+            width: 50px;
+            height: 50px;
+            margin: 4px;
+            border-radius: 8px;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .numero-disponivel {
+            background: white;
+            border-color: #D1D5DB;
+            color: #374151;
+        }
+
+        .numero-disponivel:hover {
+            border-color: #3B82F6;
+            background: #F3F4F6;
+        }
+
+        .numero-vendido {
+            background: #10B981;
+            border-color: #059669;
+            color: white;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .close-button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #374151;
+            border-radius: 4px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .close-button:hover {
+            background: #F3F4F6;
+        }
+
+        .modal-content {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .auto-save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10B981;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .auto-save-indicator.show {
+            opacity: 1;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .form-container, .auth-container {
+                margin: 0 10px;
+                padding: 20px;
+            }
+            .numero-button { width: 45px; height: 45px; }
+            .stats-container { flex-direction: column; gap: 8px; }
+            .stat-card { padding: 16px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- TELA DE SETUP -->
-        <div id="setupScreen" class="setup-container">
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="setup-container">
+            <div class="loading-spinner"></div>
+            <p>Carregando...</p>
+        </div>
+
+        <!-- Setup Screen -->
+        <div id="setupScreen" class="setup-container hidden">
             <div class="logo-container">
                 <div class="app-icon">📊</div>
                 <div class="app-title">RifaACS</div>
-                <div class="app-subtitle">Gerenciador de Rifas</div>
+                <div class="app-subtitle">Crie e Gerencie sua Rifa</div>
             </div>
-            <div class="form-container">
-                <p style="text-align: center; font-size: 14px; color: #6B7280; margin-bottom: 20px;">
-                    Conecte sua conta Google para salvar seus dados na nuvem e acessá-los de qualquer lugar.
-                </p>
-                <button id="googleSignInBtn" class="primary-button google-btn">
-                    <span class="google-icon">
-                        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#4285F4" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#34A853" d="M6.306 14.691L11.961 19.346C12.964 16.711 14.861 14.691 17.22 13.593l-5.657-5.657C9.843 10.163 7.824 12.28 6.306 14.691z"/><path fill="#FBBC05" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-5.657-5.657C30.072 35.661 27.22 36 24 36c-3.153 0-5.952-1.428-7.961-3.644L10.384 38.01C14.046 41.947 18.732 44 24 44z"/><path fill="#EA4335" d="M43.611 20.083L38.01 24.738C39.463 27.18 39.998 30.05 39.998 33c0 1.22-.095 2.41-.269 3.592L45.41 42.1C47.25 38.41 48 34.33 48 30c0-3.32-.81-6.49-2.22-9.21z"/></svg>
-                    </span>
-                    Conectar com Google
+
+             <div id="authContainer" class="auth-container">
+                <p style="margin-bottom: 20px;">Faça login para salvar seus dados na nuvem e acessá-los de qualquer lugar.</p>
+                <button id="loginBtn" class="primary-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
+                    </svg>
+                    Sincronizar com Google
                 </button>
-                <div id="syncStatus" class="sync-status">Não conectado</div>
-                <hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;">
+            </div>
+
+            <div id="configContainer" class="form-container hidden">
+                 <p style="text-align: center; margin-bottom: 16px;">Ótimo! Agora, configure os detalhes da sua rifa.</p>
                 <label class="label">Nome do Vendedor</label>
                 <input type="text" id="vendedorInput" class="input" placeholder="Digite seu nome">
+
                 <div class="row">
                     <div class="half-input">
                         <label class="label">Número Inicial</label>
@@ -110,11 +457,14 @@
                         <input type="number" id="fimInput" class="input" value="200">
                     </div>
                 </div>
-                <button id="comecarBtn" class="primary-button" disabled>Começar</button>
+
+                <button id="comecarBtn" class="primary-button" disabled>
+                    Começar
+                </button>
             </div>
         </div>
 
-        <!-- TELA PRINCIPAL DO APP -->
+        <!-- Main App -->
         <div id="mainApp" class="hidden">
             <div class="header">
                 <div class="header-left">
@@ -124,13 +474,14 @@
                         <div class="header-subtitle" id="vendedorHeader">Vendedor: </div>
                     </div>
                 </div>
+
                 <div class="header-buttons">
-                    <button id="syncBtn" class="header-button" style="background: #3B82F6;" title="Sincronizar com a nuvem">🔄</button>
-                    <button id="exportBtn" class="header-button" style="background: #10B981;" title="Exportar dados">📄</button>
-                    <button id="configBtn" class="header-button" style="background: #3B82F6;" title="Configurações">⚙️</button>
-                    <button id="resetBtn" class="header-button" style="background: #EF4444;" title="Resetar aplicativo">🗑️</button>
+                     <button id="syncBtn" class="header-button" style="background: #F59E0B;" title="Sincronização Manual">🔄</button>
+                    <button id="exportBtn" class="header-button" style="background: #10B981;" title="Exportar Relatório">📄</button>
+                    <button id="logoutBtn" class="header-button" style="background: #EF4444;" title="Sair (Logout)">🚪</button>
                 </div>
             </div>
+
             <div class="content">
                 <div class="stats-container">
                     <div class="stat-card">
@@ -146,6 +497,7 @@
                         <div class="stat-label">Total</div>
                     </div>
                 </div>
+
                 <div class="grid-container">
                     <div id="numerosGrid"></div>
                 </div>
@@ -153,412 +505,357 @@
         </div>
     </div>
 
-    <!-- INDICADORES E MODAIS -->
-    <div id="autoSaveIndicator" class="auto-save-indicator">💾 Dados salvos automaticamente</div>
-    <div id="syncIndicator" class="sync-indicator"><span id="syncMessage"></span></div>
-    <div id="numeroModal" class="modal-overlay hidden">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title" id="numeroModalTitle">Número</div>
-                <button class="close-button" onclick="fecharModal()">&times;</button>
-            </div>
-            <div class="modal-content">
-                <label class="label">Comprador</label>
-                <input type="text" id="compradorInput" class="input" placeholder="Nome do comprador">
-                <label class="label">Telefone</label>
-                <input type="tel" id="telefoneInput" class="input" placeholder="(00) 00000-0000">
-                <button id="salvarBtn" class="primary-button">💾 Salvar</button>
-            </div>
-        </div>
+    <!-- Modals -->
+    <div id="autoSaveIndicator" class="auto-save-indicator">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8.5 1.5A1.5 1.5 0 0 1 10 0h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5A1.5 1.5 0 0 1 6 1.5v1A1.5 1.5 0 0 1 4.5 4h-1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 .5-.5V3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 0-1h-1A1.5 1.5 0 0 1 8.5 2.5v-1zM4.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-7z"/></svg>
+        Sincronizado
     </div>
-    <div id="configModal" class="modal-overlay hidden">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title">Configurações</div>
-                <button class="close-button" onclick="fecharConfigModal()">&times;</button>
-            </div>
-            <div class="modal-content">
-                <label class="label">Nome do Vendedor</label>
-                <input type="text" id="vendedorConfigInput" class="input" placeholder="Digite seu nome">
-                <div class="row">
-                    <div class="half-input">
-                        <label class="label">Número Inicial</label>
-                        <input type="number" id="inicioConfigInput" class="input" disabled>
-                    </div>
-                    <div class="half-input">
-                        <label class="label">Número Final</label>
-                        <input type="number" id="fimConfigInput" class="input" disabled>
-                    </div>
-                </div>
-                <button onclick="salvarConfiguracoes()" class="primary-button">Salvar Configurações</button>
-            </div>
-        </div>
-    </div>
-    <div id="exportModal" class="modal-overlay hidden">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title">Exportar Dados</div>
-                <button class="close-button" onclick="fecharExportModal()">&times;</button>
-            </div>
-            <div class="modal-content">
-                <button onclick="exportarDados('share')" class="primary-button" style="background: #3B82F6;">📤 Compartilhar Relatório</button>
-                <button onclick="exportarDados('copy')" class="primary-button" style="margin-top: 12px; background: #6B7280;">📋 Copiar para Área de Transferência</button>
-            </div>
-        </div>
-    </div>
+    <div id="numeroModal" class="modal-overlay hidden"> <!-- Conteúdo do modal de número --> </div>
+    <div id="exportModal" class="modal-overlay hidden"> <!-- Conteúdo do modal de exportação --> </div>
+    
+    <!-- Firebase Libraries -->
+    <script type="module">
+        // Importa as funções necessárias do SDK do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <script>
-    // ==================================================================
-    // VARIÁVEIS GLOBAIS E CONFIGURAÇÃO
-    // ==================================================================
-    const GOOGLE_CLIENT_ID = '469226201678-rf8qdoccbhv1j56dldtga4fnbrqtnvrh.apps.googleusercontent.com';
-    const GOOGLE_API_KEY = 'AIzaSyBHgoFJVRAW-mg4kVJDoOY9-LhLBC4jKVo';
-    const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-    const DRIVE_APP_FOLDER = 'RifaACS_Data';
-    const DRIVE_FILE_NAME = 'rifaacs_backup.json';
+        // --- Variáveis Globais ---
+        let auth, db, analytics;
+        let currentUser = null;
+        let raffleData = {};
+        let numeroSelecionado = null;
+        let unsubscribeRaffleListener = null; // Para desligar o listener do Firestore
 
-    let vendedor = '';
-    let intervaloInicio = 101;
-    let intervaloFim = 200;
-    let numeros = [];
-    let numeroSelecionado = null;
-    let tokenClient;
-    let googleAccessToken = null;
-    let googleDriveFileId = null;
-    let lastSavedDataHash = '';
+        // Sua configuração do Firebase.
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHyvrQPh221bMM1s7HvO9n7LrfxRF-UYA",
+            authDomain: "rifaacs-69cef.firebaseapp.com",
+            projectId: "rifaacs-69cef",
+            storageBucket: "rifaacs-69cef.appspot.com",
+            messagingSenderId: "568565118428",
+            appId: "1:568565118428:web:cc16277171966ef1208b19",
+            measurementId: "G-GDGLK7436E"
+        };
 
-    const STORAGE_KEYS = {
-        vendedor: 'rifaacs_vendedor',
-        intervaloInicio: 'rifaacs_inicio',
-        intervaloFim: 'rifaacs_fim',
-        numeros: 'rifaacs_numeros',
-        configurado: 'rifaacs_configurado'
-    };
+        // --- Elementos da UI ---
+        const ui = {
+            loadingScreen: document.getElementById('loadingScreen'),
+            setupScreen: document.getElementById('setupScreen'),
+            authContainer: document.getElementById('authContainer'),
+            configContainer: document.getElementById('configContainer'),
+            mainApp: document.getElementById('mainApp'),
+            loginBtn: document.getElementById('loginBtn'),
+            comecarBtn: document.getElementById('comecarBtn'),
+            vendedorInput: document.getElementById('vendedorInput'),
+            inicioInput: document.getElementById('inicioInput'),
+            fimInput: document.getElementById('fimInput'),
+            vendedorHeader: document.getElementById('vendedorHeader'),
+            syncBtn: document.getElementById('syncBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            numerosGrid: document.getElementById('numerosGrid'),
+            vendidosCount: document.getElementById('vendidosCount'),
+            disponiveisCount: document.getElementById('disponiveisCount'),
+            totalCount: document.getElementById('totalCount'),
+            autoSaveIndicator: document.getElementById('autoSaveIndicator'),
+        };
 
-    // ==================================================================
-    // LÓGICA DE INICIALIZAÇÃO E UI
-    // ==================================================================
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('googleSignInBtn').addEventListener('click', handleAuthClick);
-        const vendedorInput = document.getElementById('vendedorInput');
-        const comecarBtn = document.getElementById('comecarBtn');
-        vendedorInput.addEventListener('input', () => { comecarBtn.disabled = !vendedorInput.value.trim(); });
-        comecarBtn.addEventListener('click', inicializarApp);
-        document.getElementById('exportBtn').addEventListener('click', () => mostrarModal('exportModal'));
-        document.getElementById('configBtn').addEventListener('click', mostrarConfigModal);
-        document.getElementById('resetBtn').addEventListener('click', resetarApp);
-        document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
-        document.getElementById('syncBtn').addEventListener('click', () => syncWithCloud(true)); // Forçar sync
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const app = initializeApp(firebaseConfig);
+                analytics = getAnalytics(app);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                setupEventListeners();
+                monitorAuthState();
+
+            } catch (error) {
+                console.error("Erro ao inicializar o Firebase:", error);
+                alert("Não foi possível conectar aos serviços na nuvem. Verifique a configuração do Firebase.");
+                ui.loadingScreen.innerHTML = "<p>Erro de Conexão. Tente novamente mais tarde.</p>";
+            }
+        });
+
+        function setupEventListeners() {
+            ui.loginBtn.addEventListener('click', signInWithGoogle);
+            ui.logoutBtn.addEventListener('click', fazerLogout);
+            ui.comecarBtn.addEventListener('click', criarNovaRifa);
+            ui.syncBtn.addEventListener('click', () => {
+                mostrarIndicadorSalvamento("Sincronizando...");
+            });
+            ui.exportBtn.addEventListener('click', () => {
+                 exportarDados();
+            });
+            ui.vendedorInput.addEventListener('input', () => {
+                 ui.comecarBtn.disabled = !ui.vendedorInput.value.trim();
+            });
+        }
         
-        if (localStorage.getItem(STORAGE_KEYS.configurado)) {
-            carregarDadosLocais();
-            irParaAppPrincipal();
+        // --- Autenticação ---
+        function monitorAuthState() {
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    currentUser = user;
+                    checkRaffleData();
+                } else {
+                    currentUser = null;
+                    showScreen('setup');
+                    ui.authContainer.classList.remove('hidden');
+                    ui.configContainer.classList.add('hidden');
+                    if(unsubscribeRaffleListener) unsubscribeRaffleListener();
+                }
+            });
         }
-    });
 
-    function inicializarApp() {
-        vendedor = document.getElementById('vendedorInput').value.trim();
-        intervaloInicio = parseInt(document.getElementById('inicioInput').value) || 1;
-        intervaloFim = parseInt(document.getElementById('fimInput').value) || 100;
-        if (!vendedor) { alert("Por favor, digite o nome do vendedor."); return; }
-        numeros = [];
-        for (let i = intervaloInicio; i <= intervaloFim; i++) {
-            numeros.push({ numero: i, status: 'disponivel' });
+        async function signInWithGoogle() {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                // onAuthStateChanged irá lidar com a transição de tela
+            } catch (error) {
+                console.error("Erro ao fazer login com Google:", error);
+                alert("Falha no login. Tente novamente.");
+            }
         }
-        localStorage.setItem(STORAGE_KEYS.configurado, 'true');
-        salvarDadosLocais();
-        irParaAppPrincipal();
-    }
+        
+        async function fazerLogout() {
+            if (confirm('Deseja realmente sair? Seus dados continuarão salvos na nuvem.')) {
+                try {
+                    await signOut(auth);
+                    location.reload(); // Recarrega a página para o estado inicial
+                } catch(error) {
+                    console.error("Erro ao fazer logout:", error);
+                }
+            }
+        }
+        
+        // --- Gerenciamento de Dados (Firestore) ---
+        async function checkRaffleData() {
+            showScreen('loading');
+            const raffleDocRef = doc(db, 'rifas', currentUser.uid);
 
-    function irParaAppPrincipal() {
-        document.getElementById('setupScreen').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        atualizarUI();
-    }
+            if (unsubscribeRaffleListener) {
+                unsubscribeRaffleListener();
+            }
 
-    function atualizarUI() {
-        if (!document.getElementById('mainApp').classList.contains('hidden')) {
-            document.getElementById('vendedorHeader').textContent = `Vendedor: ${vendedor}`;
-            gerarGrid();
+            unsubscribeRaffleListener = onSnapshot(raffleDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    raffleData = docSnap.data();
+                    renderApp();
+                    showScreen('main');
+                    mostrarIndicadorSalvamento();
+                } else {
+                    ui.vendedorInput.value = currentUser.displayName || '';
+                    ui.comecarBtn.disabled = !ui.vendedorInput.value.trim();
+                    ui.authContainer.classList.add('hidden');
+                    ui.configContainer.classList.remove('hidden');
+                    showScreen('setup');
+                }
+            }, (error) => {
+                console.error("Erro ao ouvir dados da rifa:", error);
+                alert("Erro de conexão. Não foi possível carregar os dados.");
+                showScreen('setup');
+            });
+        }
+        
+        async function criarNovaRifa() {
+            const vendedor = ui.vendedorInput.value.trim();
+            const inicio = parseInt(ui.inicioInput.value);
+            const fim = parseInt(ui.fimInput.value);
+
+            if (!vendedor || isNaN(inicio) || isNaN(fim) || inicio > fim) {
+                alert("Por favor, preencha todos os campos corretamente.");
+                return;
+            }
+
+            const numeros = [];
+            for (let i = inicio; i <= fim; i++) {
+                numeros.push({ numero: i, comprador: '', telefone: '', vendido: false });
+            }
+            
+            const novaRifa = {
+                vendedor: vendedor,
+                intervaloInicio: inicio,
+                intervaloFim: fim,
+                numeros: numeros,
+                criadaEm: new Date()
+            };
+
+            try {
+                const raffleDocRef = doc(db, 'rifas', currentUser.uid);
+                await setDoc(raffleDocRef, novaRifa);
+            } catch(error) {
+                console.error("Erro ao criar a rifa:", error);
+                alert("Não foi possível salvar a nova rifa. Tente novamente.");
+            }
+        }
+        
+        async function atualizarRifa(newData) {
+            const raffleDocRef = doc(db, 'rifas', currentUser.uid);
+            try {
+                await setDoc(raffleDocRef, newData, { merge: true });
+            } catch (error) {
+                console.error("Erro ao atualizar a rifa:", error);
+                alert("Falha na sincronização. Suas últimas alterações podem não ter sido salvas.");
+            }
+        }
+
+        // --- Renderização da UI ---
+        function renderApp() {
+            ui.vendedorHeader.textContent = `Vendedor: ${raffleData.vendedor}`;
+            atualizarGrid();
             atualizarEstatisticas();
         }
-    }
-    
-    function gerarGrid() {
-        const grid = document.getElementById('numerosGrid');
-        grid.innerHTML = '';
-        numeros.forEach(item => {
-            const btn = document.createElement('button');
-            btn.textContent = item.numero;
-            btn.classList.add('numero-button');
-            if (item.status === 'vendido') {
-                btn.classList.add('numero-vendido');
-                btn.title = `Vendido para: ${item.comprador}`;
-            } else {
-                btn.classList.add('numero-disponivel');
-                btn.title = 'Disponível';
-            }
-            btn.onclick = () => abrirModal(item);
-            grid.appendChild(btn);
-        });
-    }
 
-    // ==================================================================
-    // LÓGICA DO GOOGLE (AUTENTICAÇÃO E DRIVE)
-    // ==================================================================
-    window.onload = function() {
-        if (window.google && google.accounts) {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: GOOGLE_CLIENT_ID,
-                scope: DRIVE_SCOPE,
-                callback: tokenCallback,
-            });
-        }
-    };
+        function atualizarGrid() {
+            ui.numerosGrid.innerHTML = '';
+            if (!raffleData.numeros) return;
 
-    function handleAuthClick() {
-        if (tokenClient) tokenClient.requestAccessToken({ prompt: 'consent' });
-        else showSyncMessage('Erro ao iniciar a autenticação.', true);
-    }
-
-    async function tokenCallback(tokenResponse) {
-        if (tokenResponse && tokenResponse.access_token) {
-            googleAccessToken = tokenResponse.access_token;
-            await handleSuccessfulAuth();
-        } else {
-            showSyncMessage('Falha ao obter autorização do Google.', true, 5000);
-        }
-    }
-
-    async function handleSuccessfulAuth() {
-        document.getElementById('syncStatus').textContent = 'Conectado. Sincronizando...';
-        document.getElementById('syncStatus').classList.add('connected');
-        showSyncMessage('Autenticado com sucesso!');
-        await loadGapiClient();
-        gapi.client.setToken({ access_token: googleAccessToken });
-        const dadosCarregados = await carregarDadosDoDrive();
-        if (dadosCarregados) irParaAppPrincipal();
-        else if (localStorage.getItem(STORAGE_KEYS.configurado)) irParaAppPrincipal();
-    }
-
-    async function loadGapiClient() {
-        return new Promise((resolve) => {
-            gapi.load('client', async () => {
-                try {
-                    await gapi.client.init({
-                        apiKey: GOOGLE_API_KEY,
-                        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-                    });
-                    resolve();
-                } catch (err) { resolve(); }
-            });
-        });
-    }
-
-    function showSyncMessage(message, isError = false, duration = 3000) {
-        const indicator = document.getElementById('syncIndicator');
-        const messageEl = document.getElementById('syncMessage');
-        indicator.className = 'sync-indicator';
-        if (isError) indicator.classList.add('error');
-        messageEl.textContent = message;
-        indicator.classList.add('show');
-        setTimeout(() => indicator.classList.remove('show'), duration);
-    }
-    
-    // ==================================================================
-    // FUNÇÕES DE DADOS (LOCAL E NUVEM)
-    // ==================================================================
-    function salvarDadosLocais() {
-        localStorage.setItem(STORAGE_KEYS.vendedor, vendedor);
-        localStorage.setItem(STORAGE_KEYS.intervaloInicio, intervaloInicio);
-        localStorage.setItem(STORAGE_KEYS.intervaloFim, intervaloFim);
-        localStorage.setItem(STORAGE_KEYS.numeros, JSON.stringify(numeros));
-    }
-
-    function carregarDadosLocais() {
-        vendedor = localStorage.getItem(STORAGE_KEYS.vendedor) || 'Vendedor';
-        intervaloInicio = parseInt(localStorage.getItem(STORAGE_KEYS.intervaloInicio)) || 1;
-        intervaloFim = parseInt(localStorage.getItem(STORAGE_KEYS.intervaloFim)) || 100;
-        const numerosSalvos = localStorage.getItem(STORAGE_KEYS.numeros);
-        numeros = numerosSalvos ? JSON.parse(numerosSalvos) : [];
-    }
-
-    async function syncWithCloud(force = false) {
-        if (!googleAccessToken) {
-            if (force) {
-                showSyncMessage('Conecte com o Google primeiro.', true);
-                handleAuthClick();
-            }
-            return;
-        }
-        await salvarDadosNoDrive(force);
-    }
-    
-    async function getRifaFolderId() {
-        let response = await gapi.client.drive.files.list({
-            q: `mimeType='application/vnd.google-apps.folder' and name='${DRIVE_APP_FOLDER}' and trashed=false`,
-            fields: 'files(id)',
-        });
-        if (response.result.files.length > 0) return response.result.files[0].id;
-        
-        const folderMetadata = { name: DRIVE_APP_FOLDER, mimeType: 'application/vnd.google-apps.folder' };
-        const file = await gapi.client.drive.files.create({ resource: folderMetadata, fields: 'id' });
-        return file.result.id;
-    }
-
-    async function carregarDadosDoDrive() {
-        showSyncMessage('Buscando dados na nuvem...');
-        try {
-            const folderId = await getRifaFolderId();
-            if (!folderId) throw new Error("Folder not found");
-            
-            const response = await gapi.client.drive.files.list({
-                q: `'${folderId}' in parents and name='${DRIVE_FILE_NAME}' and trashed=false`,
-                fields: 'files(id)',
-            });
-
-            if (response.result.files.length === 0) {
-                showSyncMessage('Nenhum backup encontrado na nuvem.');
-                return false;
-            }
-            googleDriveFileId = response.result.files[0].id;
-
-            const fileResponse = await gapi.client.drive.files.get({ fileId: googleDriveFileId, alt: 'media' });
-            const data = fileResponse.result;
-
-            if (data && data.vendedor) {
-                vendedor = data.vendedor;
-                intervaloInicio = data.intervaloInicio;
-                intervaloFim = data.intervaloFim;
-                numeros = data.numeros;
-                lastSavedDataHash = JSON.stringify(data);
+            const numerosPorLinha = 5;
+            for (let i = 0; i < raffleData.numeros.length; i += numerosPorLinha) {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
                 
-                salvarDadosLocais();
-                localStorage.setItem(STORAGE_KEYS.configurado, 'true');
-                atualizarUI();
-                showSyncMessage('Dados carregados da nuvem!');
-                return true;
+                for (let j = i; j < Math.min(i + numerosPorLinha, raffleData.numeros.length); j++) {
+                    const numeroData = raffleData.numeros[j];
+                    const button = document.createElement('button');
+                    button.className = `numero-button ${numeroData.vendido ? 'numero-vendido' : 'numero-disponivel'}`;
+                    button.textContent = numeroData.numero;
+                    button.onclick = () => abrirModalNumero(numeroData.numero);
+                    row.appendChild(button);
+                }
+                ui.numerosGrid.appendChild(row);
             }
-        } catch (err) {
-            console.error("Erro ao carregar dados do Drive: ", err);
-            showSyncMessage('Erro ao carregar da nuvem.', true);
         }
-        return false;
-    }
 
-    async function salvarDadosNoDrive(force = false) {
-        if (!googleAccessToken) return;
-        const dataToSave = { vendedor, intervaloInicio, intervaloFim, numeros, updatedAt: new Date().toISOString() };
-        const dataHash = JSON.stringify(dataToSave);
-        if (dataHash === lastSavedDataHash && !force) return;
-
-        showSyncMessage(force ? 'Forçando sincronização...' : 'Salvando alterações na nuvem...');
-        try {
-            const folderId = await getRifaFolderId();
-            if (!folderId) throw new Error("Could not find or create the app folder.");
-
-            const fileMetadata = { name: DRIVE_FILE_NAME, parents: [folderId] };
-            const media = { mimeType: 'application/json', body: dataHash };
+        function atualizarEstatisticas() {
+            if (!raffleData.numeros) return;
+            const vendidos = raffleData.numeros.filter(n => n.vendido).length;
+            const total = raffleData.numeros.length;
+            const disponiveis = total - vendidos;
             
-            if (googleDriveFileId) {
-                await gapi.client.drive.files.update({ fileId: googleDriveFileId, media: media });
-            } else {
-                const response = await gapi.client.drive.files.create({ resource: fileMetadata, media: media, fields: 'id' });
-                googleDriveFileId = response.result.id;
-            }
-            lastSavedDataHash = dataHash;
-            showSyncMessage('Dados salvos na nuvem com sucesso!');
-        } catch (error) {
-            console.error('Erro ao salvar no Drive:', error);
-            showSyncMessage('Falha ao salvar na nuvem.', true);
+            ui.vendidosCount.textContent = vendidos;
+            ui.disponiveisCount.textContent = disponiveis;
+            ui.totalCount.textContent = total;
         }
-    }
 
-    // ==================================================================
-    // FUNÇÕES DE MODAIS E AÇÕES
-    // ==================================================================
-    function atualizarEstatisticas() {
-        const vendidos = numeros.filter(n => n.status === 'vendido').length;
-        const total = numeros.length;
-        document.getElementById('vendidosCount').textContent = vendidos;
-        document.getElementById('disponiveisCount').textContent = total - vendidos;
-        document.getElementById('totalCount').textContent = total;
-    }
+        function showScreen(screenName) {
+            ui.loadingScreen.classList.add('hidden');
+            ui.setupScreen.classList.add('hidden');
+            ui.mainApp.classList.add('hidden');
 
-    function abrirModal(item) {
-        numeroSelecionado = item;
-        document.getElementById('numeroModalTitle').textContent = `Número ${item.numero}`;
-        document.getElementById('compradorInput').value = item.comprador || '';
-        document.getElementById('telefoneInput').value = item.telefone || '';
-        mostrarModal('numeroModal');
-        document.getElementById('compradorInput').focus();
-    }
-    
-    function salvarNumero() {
-        if (!numeroSelecionado) return;
-        const comprador = document.getElementById('compradorInput').value.trim();
-        if (!comprador) {
-            numeroSelecionado.status = 'disponivel';
-            delete numeroSelecionado.comprador;
-            delete numeroSelecionado.telefone;
-        } else {
-            numeroSelecionado.status = 'vendido';
-            numeroSelecionado.comprador = comprador;
-            numeroSelecionado.telefone = document.getElementById('telefoneInput').value.trim();
+            if (screenName === 'loading') ui.loadingScreen.classList.remove('hidden');
+            if (screenName === 'setup') ui.setupScreen.classList.remove('hidden');
+            if (screenName === 'main') ui.mainApp.classList.remove('hidden');
         }
-        fecharModal();
-        salvarDadosLocais();
-        atualizarUI();
-        syncWithCloud();
-    }
-    
-    function resetarApp() {
-        if (confirm('Tem certeza que deseja apagar TODOS os dados? Esta ação não pode ser desfeita.')) {
-            localStorage.clear();
-            googleDriveFileId = null;
-            window.location.reload();
+
+        function mostrarIndicadorSalvamento(message = "Sincronizado") {
+            const indicator = document.getElementById('autoSaveIndicator');
+            indicator.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8.5 1.5A1.5 1.5 0 0 1 10 0h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5A1.5 1.5 0 0 1 6 1.5v1A1.5 1.5 0 0 1 4.5 4h-1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 .5-.5V3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 0-1h-1A1.5 1.5 0 0 1 8.5 2.5v-1zM4.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-7z"/></svg> ${message}`;
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
         }
-    }
-    
-    function mostrarModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function fecharModal() { esconderModal('numeroModal'); }
-    function fecharConfigModal() { esconderModal('configModal'); }
-    function fecharExportModal() { esconderModal('exportModal'); }
-    
-    function mostrarConfigModal() {
-        document.getElementById('vendedorConfigInput').value = vendedor;
-        document.getElementById('inicioConfigInput').value = intervaloInicio;
-        document.getElementById('fimConfigInput').value = intervaloFim;
-        mostrarModal('configModal');
-    }
-    
-    function salvarConfiguracoes() {
-        vendedor = document.getElementById('vendedorConfigInput').value;
-        salvarDadosLocais();
-        atualizarUI();
-        fecharConfigModal();
-        syncWithCloud(true);
-    }
-    
-    function exportarDados(method) {
-        let texto = `*Relatório da Rifa de ${vendedor}*\n\n`;
-        texto += `*Números Vendidos:*\n`;
-        const vendidos = numeros.filter(n => n.status === 'vendido');
-        if (vendidos.length === 0) texto += "Nenhum número vendido ainda.\n";
-        else vendidos.forEach(n => { texto += `- Nº ${n.numero}: ${n.comprador} (${n.telefone || 'sem tel'})\n`; });
         
-        texto += `\n*Números Disponíveis:*\n`;
-        const disponiveis = numeros.filter(n => n.status === 'disponivel').map(n => n.numero).join(', ');
-        texto += disponiveis || "Nenhum.";
+        function exportarDados() {
+            if (!raffleData || !raffleData.numeros) {
+                alert('Não há dados para exportar.');
+                return;
+            }
 
-        if (method === 'share' && navigator.share) {
-            navigator.share({ title: `Relatório da Rifa`, text: texto });
-        } else {
-            navigator.clipboard.writeText(texto).then(() => { alert('Relatório copiado para a área de transferência!'); });
+            const vendidos = raffleData.numeros.filter(n => n.vendido);
+            let conteudo = `RELATÓRIO DE RIFA - ${raffleData.vendedor}\n`;
+            conteudo += `Data: ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+            conteudo += `NÚMEROS VENDIDOS:\n`;
+            conteudo += `================\n\n`;
+
+            vendidos.forEach(n => {
+                conteudo += `Número: ${n.numero}\n`;
+                conteudo += `Comprador: ${n.comprador}\n`;
+                if(n.telefone) conteudo += `Telefone: ${n.telefone}\n`;
+                conteudo += `------------------------\n`;
+            });
+
+            conteudo += `\nTotal de números vendidos: ${vendidos.length}`;
+            conteudo += `\nTotal de números disponíveis: ${raffleData.numeros.length - vendidos.length}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: `Relatório de Rifa - ${raffleData.vendedor}`,
+                    text: conteudo
+                }).catch(console.log);
+            } else {
+                navigator.clipboard.writeText(conteudo).then(() => {
+                    alert('Relatório copiado para a área de transferência!');
+                });
+            }
         }
-        fecharExportModal();
-    }
+
+        // --- Lógica do Modal ---
+        function abrirModalNumero(numero) {
+            numeroSelecionado = numero;
+            const numeroData = raffleData.numeros.find(n => n.numero === numero);
+            
+            const modalHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="modal-title" id="numeroModalTitle">Número ${numero}</div>
+                        <button class="close-button" onclick="window.fecharModal()">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <label class="label">Comprador</label>
+                        <input type="text" id="compradorInput" class="input" placeholder="Nome do comprador" value="${numeroData.comprador || ''}">
+                        <label class="label">Telefone</label>
+                        <input type="tel" id="telefoneInput" class="input" placeholder="(00) 00000-0000" value="${numeroData.telefone || ''}">
+                        <button id="salvarBtn" class="primary-button">💾 Salvar</button>
+                    </div>
+                </div>
+            `;
+            const modalOverlay = document.getElementById('numeroModal');
+            modalOverlay.innerHTML = modalHTML;
+            modalOverlay.classList.remove('hidden');
+
+            document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
+        }
+
+        window.fecharModal = () => {
+            document.getElementById('numeroModal').classList.add('hidden');
+            numeroSelecionado = null;
+        }
+
+        function salvarNumero() {
+            if (numeroSelecionado === null) return;
+            
+            const comprador = document.getElementById('compradorInput').value;
+            const telefone = document.getElementById('telefoneInput').value;
+
+            const numeroIndex = raffleData.numeros.findIndex(n => n.numero === numeroSelecionado);
+            if (numeroIndex !== -1) {
+                const updatedRaffleData = JSON.parse(JSON.stringify(raffleData));
+                updatedRaffleData.numeros[numeroIndex] = {
+                    ...updatedRaffleData.numeros[numeroIndex],
+                    comprador,
+                    telefone,
+                    vendido: comprador.trim() !== ''
+                };
+                
+                atualizarRifa(updatedRaffleData);
+            }
+            
+            window.fecharModal();
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.add('hidden');
+            }
+        });
+
     </script>
 </body>
 </html>
-
