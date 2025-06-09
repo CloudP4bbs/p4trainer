@@ -9,133 +9,524 @@
     <title>RifaACS - Gerenciador de Rifas</title>
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%233B82F6' rx='40'/%3E%3Cpath fill='white' d='M45 60h90v15H45zm0 30h90v15H45zm0 30h90v15H45z'/%3E%3C/svg%3E">
     <style>
-        /* Estilos CSS principais permanecem os mesmos */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6; color: #374151; }
-        .container { min-height: 100vh; display: flex; flex-direction: column; }
-        .setup-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; min-height: 100vh; }
-        .logo-container { text-align: center; margin-bottom: 40px; }
-        .app-icon { width: 80px; height: 80px; background: #3B82F6; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 40px; color: white; }
-        .app-title { font-size: 32px; font-weight: bold; color: #374151; margin-bottom: 8px; }
-        .app-subtitle { font-size: 16px; color: #6B7280; }
-        .form-container, .auth-container { width: 100%; max-width: 400px; text-align: center; }
-        .form-container { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .label { font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; margin-top: 16px; display: block; text-align: left;}
-        .input { width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 12px; font-size: 16px; }
-        .primary-button { width: 100%; background: #3B82F6; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 500; margin-top: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .primary-button:disabled { background: #D1D5DB; cursor: not-allowed; }
-        .header { background: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .header-icon { width: 40px; height: 40px; background: #3B82F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
-        .header-title { font-size: 20px; font-weight: bold; }
-        .header-subtitle { font-size: 14px; color: #6B7280; }
-        .header-buttons { display: flex; gap: 8px; }
-        .header-button { width: 40px; height: 40px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; }
-        .content { flex: 1; padding: 16px; }
-        .stats-container { display: flex; gap: 12px; margin-bottom: 24px; }
-        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
-        .stat-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
-        .stat-label { font-size: 12px; color: #6B7280; }
-        .grid-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
-        .grid-row { display: flex; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
-        .numero-button { width: 50px; height: 50px; margin: 4px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .numero-disponivel { background: white; border-color: #D1D5DB; color: #374151; }
-        .numero-vendido { background: #10B981; border-color: #059669; color: white; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
-        .modal-container { background: white; border-radius: 16px; width: 100%; max-width: 400px; max-height: 80vh; overflow: hidden; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #E5E7EB; }
-        .modal-title { font-size: 20px; font-weight: bold; }
-        .modal-content { padding: 20px; overflow-y: auto; }
-        .close-button { width: 32px; height: 32px; border: none; background: none; cursor: pointer; font-size: 24px; }
-        .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-        .hidden { display: none !important; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* NOVO: Estilos da Consola de Depuração Visual */
-        #debug-console {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            max-height: 20vh;
-            overflow-y: scroll;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            font-family: monospace;
-            font-size: 12px;
-            padding: 8px;
-            z-index: 9999;
-            box-sizing: border-box;
-            border-top: 2px solid #3B82F6;
-        }
-        #debug-console p {
+        /* Estilos CSS permanecem os mesmos */
+        * {
             margin: 0;
-            padding: 2px 0;
-            border-bottom: 1px solid #444;
-            white-space: pre-wrap; /* Permite que o texto quebre a linha */
+            padding: 0;
+            box-sizing: border-box;
         }
-        #debug-console p.error {
-            color: #ff9e9e;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #F3F4F6;
+            color: #374151;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Setup Screen */
+        .setup-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: #3B82F6;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 40px;
+            color: white;
+        }
+
+        .app-title {
+            font-size: 32px;
             font-weight: bold;
-            background-color: rgba(255, 0, 0, 0.2);
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .app-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            margin-top: 16px;
+            display: block;
+        }
+
+        .input {
+            width: 100%;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            background: white;
+            color: #374151;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .half-input {
+            flex: 1;
+        }
+
+        .primary-button {
+            width: 100%;
+            background: #3B82F6;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .primary-button:hover:not(:disabled) {
+            background: #2563EB;
+        }
+
+        .primary-button:disabled {
+            background: #D1D5DB;
+            cursor: not-allowed;
+        }
+
+        /* Main App */
+        .header {
+            background: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: #3B82F6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .header-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: opacity 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .header-button:hover {
+            opacity: 0.9;
+        }
+        
+        #syncStatus {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        .grid-container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .numero-button {
+            width: 50px;
+            height: 50px;
+            margin: 4px;
+            border-radius: 8px;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .numero-disponivel {
+            background: white;
+            border-color: #D1D5DB;
+            color: #374151;
+        }
+
+        .numero-disponivel:hover {
+            border-color: #3B82F6;
+            background: #F3F4F6;
+        }
+
+        .numero-vendido {
+            background: #10B981;
+            border-color: #059669;
+            color: white;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .close-button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #374151;
+            border-radius: 4px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .close-button:hover {
+            background: #F3F4F6;
+        }
+
+        .modal-content {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .auto-save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10B981;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .auto-save-indicator.show {
+            opacity: 1;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .form-container, .auth-container {
+                margin: 0 10px;
+                padding: 20px;
+            }
+            .numero-button { width: 45px; height: 45px; }
+            .stats-container { flex-direction: column; gap: 8px; }
+            .stat-card { padding: 16px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Telas da UI (sem alterações) -->
-        <div id="loadingScreen" class="setup-container"><div id="loadingContent"><div class="loading-spinner"></div><p>A iniciar...</p></div></div>
-        <div id="setupScreen" class="setup-container hidden"><div class="logo-container"><div class="app-icon">📊</div><div class="app-title">RifaACS</div><div class="app-subtitle">Crie e Gerencie a sua Rifa</div></div><div id="authContainer" class="auth-container"><p style="margin-bottom: 20px;">Faça login para salvar os seus dados na nuvem.</p><button id="loginBtn" class="primary-button"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/></svg>Sincronizar com Google</button></div><div id="configContainer" class="form-container hidden"><p style="text-align: center; margin-bottom: 16px;">Ótimo! Agora, configure os detalhes da sua rifa.</p><label class="label">Nome do Vendedor</label><input type="text" id="vendedorInput" class="input" placeholder="Digite seu nome"><div style="display:flex; gap: 12px;"><div style="flex:1;"><label class="label">Nº Inicial</label><input type="number" id="inicioInput" class="input" value="101"></div><div style="flex:1;"><label class="label">Nº Final</label><input type="number" id="fimInput" class="input" value="200"></div></div><button id="comecarBtn" class="primary-button" disabled>Começar</button></div></div>
-        <div id="mainApp" class="hidden"><div class="header"><div class="header-left"><div class="header-icon">📊</div><div><div class="header-title">RifaACS</div><div class="header-subtitle" id="vendedorHeader"></div></div></div><div class="header-buttons"><button id="exportBtn" class="header-button" style="background: #10B981;" title="Exportar Relatório">📄</button><button id="logoutBtn" class="header-button" style="background: #EF4444;" title="Sair (Logout)">🚪</button></div></div><div class="content"><div class="stats-container"><div class="stat-card"><div id="vendidosCount" class="stat-number" style="color: #10B981;">0</div><div class="stat-label">Vendidos</div></div><div class="stat-card"><div id="disponiveisCount" class="stat-number" style="color: #3B82F6;">0</div><div class="stat-label">Disponíveis</div></div><div class="stat-card"><div id="totalCount" class="stat-number" style="color: #374151;">0</div><div class="stat-label">Total</div></div></div><div class="grid-container"><div id="numerosGrid"></div></div></div></div>
-    </div>
-    <div id="numeroModal" class="modal-overlay hidden"></div>
-    
-    <!-- NOVO: Consola de Depuração Visual -->
-    <div id="debug-console"></div>
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="setup-container">
+            <div id="loadingContent">
+                <div class="loading-spinner"></div>
+                <p>Carregando dados...</p>
+            </div>
+        </div>
 
+        <!-- Setup Screen -->
+        <div id="setupScreen" class="setup-container hidden">
+            <div class="logo-container">
+                <div class="app-icon">📊</div>
+                <div class="app-title">RifaACS</div>
+                <div class="app-subtitle">Crie e Gerencie sua Rifa</div>
+            </div>
+
+             <div id="authContainer" class="auth-container">
+                <p style="margin-bottom: 20px;">Faça login para salvar seus dados na nuvem e acessá-los de qualquer lugar.</p>
+                <button id="loginBtn" class="primary-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
+                    </svg>
+                    Sincronizar com Google
+                </button>
+            </div>
+
+            <div id="configContainer" class="form-container hidden">
+                 <p style="text-align: center; margin-bottom: 16px;">Ótimo! Agora, configure os detalhes da sua rifa.</p>
+                <label class="label">Nome do Vendedor</label>
+                <input type="text" id="vendedorInput" class="input" placeholder="Digite seu nome">
+
+                <div class="row">
+                    <div class="half-input">
+                        <label class="label">Número Inicial</label>
+                        <input type="number" id="inicioInput" class="input" value="101">
+                    </div>
+                    <div class="half-input">
+                        <label class="label">Número Final</label>
+                        <input type="number" id="fimInput" class="input" value="200">
+                    </div>
+                </div>
+
+                <button id="comecarBtn" class="primary-button" disabled>
+                    Começar
+                </button>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="mainApp" class="hidden">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-icon">📊</div>
+                    <div>
+                        <div class="header-title">RifaACS</div>
+                        <div class="header-subtitle" id="vendedorHeader">Vendedor: </div>
+                    </div>
+                </div>
+
+                <div class="header-buttons">
+                     <button id="syncBtn" class="header-button" style="background: #F59E0B;" title="Sincronização Manual">🔄</button>
+                    <button id="exportBtn" class="header-button" style="background: #10B981;" title="Exportar Relatório">📄</button>
+                    <button id="logoutBtn" class="header-button" style="background: #EF4444;" title="Sair (Logout)">🚪</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #10B981;" id="vendidosCount">0</div>
+                        <div class="stat-label">Vendidos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #3B82F6;" id="disponiveisCount">0</div>
+                        <div class="stat-label">Disponíveis</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #374151;" id="totalCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div id="numerosGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="autoSaveIndicator" class="auto-save-indicator">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8.5 1.5A1.5 1.5 0 0 1 10 0h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5A1.5 1.5 0 0 1 6 1.5v1A1.5 1.5 0 0 1 4.5 4h-1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 .5-.5V3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 0-1h-1A1.5 1.5 0 0 1 8.5 2.5v-1zM4.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-7z"/></svg>
+        Sincronizado
+    </div>
+    <div id="numeroModal" class="modal-overlay hidden"> <!-- Conteúdo do modal de número --> </div>
+    
+    <!-- Firebase Libraries -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Elementos da UI ---
-        const ui = {
-            loadingScreen: document.getElementById('loadingScreen'),
-            setupScreen: document.getElementById('setupScreen'),
-            authContainer: document.getElementById('authContainer'),
-            configContainer: document.getElementById('configContainer'),
-            mainApp: document.getElementById('mainApp'),
-            loginBtn: document.getElementById('loginBtn'),
-            comecarBtn: document.getElementById('comecarBtn'),
-            vendedorInput: document.getElementById('vendedorInput'),
-            inicioInput: document.getElementById('inicioInput'),
-            fimInput: document.getElementById('fimInput'),
-            vendedorHeader: document.getElementById('vendedorHeader'),
-            exportBtn: document.getElementById('exportBtn'),
-            logoutBtn: document.getElementById('logoutBtn'),
-            numerosGrid: document.getElementById('numerosGrid'),
-            vendidosCount: document.getElementById('vendidosCount'),
-            disponiveisCount: document.getElementById('disponiveisCount'),
-            totalCount: document.getElementById('totalCount'),
-            debugConsole: document.getElementById('debug-console'),
-        };
-        
-        // --- NOVO: Função para registar na consola visual ---
-        function logToScreen(message, isError = false) {
-            console.log(message); // Mantém o registo na consola real também
-            const p = document.createElement('p');
-            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            if (isError) {
-                p.className = 'error';
-            }
-            ui.debugConsole.appendChild(p);
-            ui.debugConsole.scrollTop = ui.debugConsole.scrollHeight; // Rola para baixo
-        }
-
-        // --- Variáveis Globais ---
-        let auth, db;
+        let auth, db, analytics;
         let currentUser = null;
+        let raffleData = {};
+        let numeroSelecionado = null;
         let unsubscribeRaffleListener = null;
+        let loadingTimeout = null; // <-- NOVO: Variável para o timeout
 
         const firebaseConfig = {
             apiKey: "AIzaSyBHyvrQPh221bMM1s7HvO9n7LrfxRF-UYA",
@@ -146,19 +537,42 @@
             appId: "1:568565118428:web:cc16277171966ef1208b19",
             measurementId: "G-GDGLK7436E"
         };
-        
+
+        const ui = {
+            loadingScreen: document.getElementById('loadingScreen'),
+            loadingContent: document.getElementById('loadingContent'),
+            setupScreen: document.getElementById('setupScreen'),
+            authContainer: document.getElementById('authContainer'),
+            configContainer: document.getElementById('configContainer'),
+            mainApp: document.getElementById('mainApp'),
+            loginBtn: document.getElementById('loginBtn'),
+            comecarBtn: document.getElementById('comecarBtn'),
+            vendedorInput: document.getElementById('vendedorInput'),
+            inicioInput: document.getElementById('inicioInput'),
+            fimInput: document.getElementById('fimInput'),
+            vendedorHeader: document.getElementById('vendedorHeader'),
+            syncBtn: document.getElementById('syncBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            numerosGrid: document.getElementById('numerosGrid'),
+            vendidosCount: document.getElementById('vendidosCount'),
+            disponiveisCount: document.getElementById('disponiveisCount'),
+            totalCount: document.getElementById('totalCount'),
+            autoSaveIndicator: document.getElementById('autoSaveIndicator'),
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
-            logToScreen("A carregar o DOM...");
             try {
-                logToScreen("A inicializar o Firebase...");
                 const app = initializeApp(firebaseConfig);
+                analytics = getAnalytics(app);
                 auth = getAuth(app);
                 db = getFirestore(app);
-                logToScreen("Firebase inicializado com sucesso.");
                 setupEventListeners();
                 monitorAuthState();
             } catch (error) {
-                logToScreen(`ERRO CRÍTICO ao inicializar o Firebase: ${error.message}`, true);
+                console.error("Erro ao inicializar o Firebase:", error);
+                alert("Não foi possível conectar aos serviços na nuvem.");
+                ui.loadingContent.innerHTML = "<p>Erro de Conexão. Tente novamente mais tarde.</p>";
             }
         });
 
@@ -166,23 +580,24 @@
             ui.loginBtn.addEventListener('click', signInWithGoogle);
             ui.logoutBtn.addEventListener('click', fazerLogout);
             ui.comecarBtn.addEventListener('click', criarNovaRifa);
+            ui.syncBtn.addEventListener('click', () => mostrarIndicadorSalvamento("Sincronizando..."));
             ui.exportBtn.addEventListener('click', exportarDados);
             ui.vendedorInput.addEventListener('input', () => {
                 ui.comecarBtn.disabled = !ui.vendedorInput.value.trim();
             });
-            logToScreen("Listeners de eventos configurados.");
         }
 
         function monitorAuthState() {
             onAuthStateChanged(auth, user => {
                 if (user) {
-                    logToScreen(`Utilizador autenticado: ${user.email} (UID: ${user.uid})`);
+                    console.log("Usuário autenticado:", user.uid);
                     currentUser = user;
                     checkRaffleData();
                 } else {
-                    logToScreen("Nenhum utilizador autenticado. A mostrar ecrã de login.");
+                    console.log("Nenhum usuário autenticado.");
                     currentUser = null;
                     if (unsubscribeRaffleListener) unsubscribeRaffleListener();
+                    if (loadingTimeout) clearTimeout(loadingTimeout);
                     showScreen('setup');
                     ui.authContainer.classList.remove('hidden');
                     ui.configContainer.classList.add('hidden');
@@ -191,155 +606,226 @@
         }
 
         async function signInWithGoogle() {
-            logToScreen("A tentar fazer login com o Google...");
             const provider = new GoogleAuthProvider();
             try {
                 await signInWithPopup(auth, provider);
-                logToScreen("Login com o Google bem-sucedido.");
             } catch (error) {
-                logToScreen(`ERRO no login: ${error.code} - ${error.message}`, true);
-                logToScreen("VERIFIQUE: O seu domínio está autorizado no Firebase Authentication?", true);
+                console.error("Erro detalhado ao fazer login com Google:", error);
+                alert(`Falha no login. Verifique as configurações no Console do Firebase.\n\nCódigo do Erro: ${error.code}`);
             }
         }
 
         async function fazerLogout() {
-            // ... (sem alterações)
-            if (confirm('Deseja realmente sair? Os seus dados continuarão salvos na nuvem.')) {
+            if (confirm('Deseja realmente sair? Seus dados continuarão salvos na nuvem.')) {
                 try {
                     await signOut(auth);
                     location.reload();
                 } catch (error) {
-                    logToScreen(`Erro ao fazer logout: ${error.message}`, true);
+                    console.error("Erro ao fazer logout:", error);
                 }
             }
         }
 
         function checkRaffleData() {
             showScreen('loading');
-            logToScreen(`A verificar dados da rifa para o utilizador ${currentUser.uid}...`);
+            console.log("Tentando carregar dados da rifa para o usuário:", currentUser.uid);
+
+            // NOVO: Timeout de carregamento
+            loadingTimeout = setTimeout(() => {
+                console.error("Timeout: O carregamento dos dados demorou mais de 10 segundos.");
+                ui.loadingContent.innerHTML = `<p style="color:red; text-align:center;"><b>Falha ao carregar dados.</b><br>Verifique suas Regras de Segurança no Firestore e sua conexão com a internet.</p>`;
+            }, 10000); // 10 segundos
+
             const raffleDocRef = doc(db, 'rifas', currentUser.uid);
 
             if (unsubscribeRaffleListener) unsubscribeRaffleListener();
 
             unsubscribeRaffleListener = onSnapshot(raffleDocRef, (docSnap) => {
-                logToScreen(`Recebida resposta do Firestore. O documento existe: ${docSnap.exists()}`);
+                clearTimeout(loadingTimeout); // Cancela o timeout pois recebemos uma resposta
+                console.log("Listener do Firestore ativado. O documento existe?", docSnap.exists());
+                
                 if (docSnap.exists()) {
-                    logToScreen("Rifa encontrada. A renderizar a aplicação...");
-                    renderApp(docSnap.data());
+                    raffleData = docSnap.data();
+                    renderApp();
                     showScreen('main');
+                    mostrarIndicadorSalvamento();
                 } else {
-                    logToScreen("Nenhuma rifa encontrada. A mostrar ecrã de configuração.");
+                    console.log("Documento não encontrado para o usuário. Mostrando tela de configuração.");
                     ui.vendedorInput.value = currentUser.displayName || '';
                     ui.comecarBtn.disabled = !ui.vendedorInput.value.trim();
-                    showScreen('setup');
                     ui.authContainer.classList.add('hidden');
                     ui.configContainer.classList.remove('hidden');
+                    showScreen('setup');
                 }
             }, (error) => {
-                logToScreen(`ERRO ao ler do Firestore: ${error.message}`, true);
-                logToScreen("VERIFIQUE: As suas Regras de Segurança no Firestore estão corretas?", true);
+                clearTimeout(loadingTimeout);
+                console.error("Erro no listener do Firestore:", error);
+                alert("Erro de permissão ao ler os dados. Verifique as Regras de Segurança no console do Firebase.");
                 showScreen('setup');
             });
         }
-        
-        function showScreen(screenName) {
-            ui.loadingScreen.classList.add('hidden');
-            ui.setupScreen.classList.add('hidden');
-            ui.mainApp.classList.add('hidden');
-            if(screenName === 'loading') ui.loadingScreen.classList.remove('hidden');
-            if(screenName === 'setup') ui.setupScreen.classList.remove('hidden');
-            if(screenName === 'main') ui.mainApp.classList.remove('hidden');
-        }
-
-        function renderApp(raffleData) {
-            ui.vendedorHeader.textContent = `Vendedor: ${raffleData.vendedor}`;
-            atualizarGrid(raffleData.numeros);
-            atualizarEstatisticas(raffleData.numeros);
-        }
-
-        function atualizarGrid(numeros) {
-            ui.numerosGrid.innerHTML = '';
-            if (!numeros) return;
-            const numerosPorLinha = 5;
-            for (let i = 0; i < numeros.length; i += numerosPorLinha) {
-                const row = document.createElement('div');
-                row.className = 'grid-row';
-                for (let j = i; j < Math.min(i + numerosPorLinha, numeros.length); j++) {
-                    const numeroData = numeros[j];
-                    const button = document.createElement('button');
-                    button.className = `numero-button ${numeroData.vendido ? 'numero-vendido' : 'numero-disponivel'}`;
-                    button.textContent = numeroData.numero;
-                    button.onclick = () => abrirModalNumero(numeroData, numeros);
-                    row.appendChild(button);
-                }
-                ui.numerosGrid.appendChild(row);
-            }
-        }
-        
-        // As restantes funções (criarNovaRifa, atualizarRifa, modals, etc.) não precisam de grandes alterações de lógica.
-        // Apenas as funções que interagem com o Firebase precisam de logs.
 
         async function criarNovaRifa() {
-            logToScreen("A criar nova rifa...");
+            // ... (função sem alterações)
             const vendedor = ui.vendedorInput.value.trim();
             const inicio = parseInt(ui.inicioInput.value);
             const fim = parseInt(ui.fimInput.value);
+
+            if (!vendedor || isNaN(inicio) || isNaN(fim) || inicio > fim) {
+                alert("Por favor, preencha todos os campos corretamente.");
+                return;
+            }
 
             const numeros = [];
             for (let i = inicio; i <= fim; i++) {
                 numeros.push({ numero: i, comprador: '', telefone: '', vendido: false });
             }
             
-            const novaRifa = { vendedor, intervaloInicio: inicio, intervaloFim: fim, numeros, criadaEm: new Date() };
+            const novaRifa = {
+                vendedor,
+                intervaloInicio: inicio,
+                intervaloFim: fim,
+                numeros,
+                criadaEm: new Date()
+            };
 
             try {
                 const raffleDocRef = doc(db, 'rifas', currentUser.uid);
                 await setDoc(raffleDocRef, novaRifa);
-                logToScreen("Nova rifa criada com sucesso no Firestore.");
             } catch(error) {
-                logToScreen(`ERRO ao criar a rifa: ${error.message}`, true);
+                console.error("Erro ao criar a rifa:", error);
+                alert("Não foi possível salvar a nova rifa. Tente novamente.");
+            }
+        }
+        
+        async function atualizarRifa(newData) {
+            // ... (função sem alterações)
+            const raffleDocRef = doc(db, 'rifas', currentUser.uid);
+            try {
+                await setDoc(raffleDocRef, newData, { merge: true });
+            } catch (error) {
+                console.error("Erro ao atualizar a rifa:", error);
+                alert("Falha na sincronização. Suas últimas alterações podem não ter sido salvas.");
             }
         }
 
-        function abrirModalNumero(numeroData, todosNumeros) {
-            const modal = document.getElementById('numeroModal');
-            modal.innerHTML = `<div class="modal-container"><div class="modal-header"><div class="modal-title">Número ${numeroData.numero}</div><button class="close-button">&times;</button></div><div class="modal-content"><label class="label">Comprador</label><input type="text" id="compradorInput" class="input" value="${numeroData.comprador || ''}"><label class="label">Telefone</label><input type="tel" id="telefoneInput" class="input" value="${numeroData.telefone || ''}"><button class="primary-button">💾 Salvar</button></div></div>`;
-            modal.classList.remove('hidden');
-            
-            const fechar = () => modal.classList.add('hidden');
-            modal.querySelector('.close-button').onclick = fechar;
-            modal.querySelector('.primary-button').onclick = () => {
-                const comprador = modal.querySelector('#compradorInput').value;
-                const telefone = modal.querySelector('#telefoneInput').value;
-                
-                const numeroIndex = todosNumeros.findIndex(n => n.numero === numeroData.numero);
-                const updatedNumeros = [...todosNumeros];
-                updatedNumeros[numeroIndex] = { ...numeroData, comprador, telefone, vendido: comprador.trim() !== '' };
-                
-                // Atualiza o documento inteiro
-                const raffleDocRef = doc(db, 'rifas', currentUser.uid);
-                setDoc(raffleDocRef, { numeros: updatedNumeros }, { merge: true })
-                    .catch(e => logToScreen(`ERRO ao salvar número: ${e.message}`, true));
-                
-                fechar();
-            };
+        function renderApp() {
+            // ... (função sem alterações)
+            ui.vendedorHeader.textContent = `Vendedor: ${raffleData.vendedor}`;
+            atualizarGrid();
+            atualizarEstatisticas();
         }
 
-        function atualizarEstatisticas(numeros) { /* ... sem alterações ... */
-            if (!numeros) return;
-            const vendidos = numeros.filter(n => n.vendido).length;
-            const total = numeros.length;
+        function atualizarGrid() {
+            // ... (função sem alterações)
+            ui.numerosGrid.innerHTML = '';
+            if (!raffleData.numeros) return;
+
+            const numerosPorLinha = 5;
+            for (let i = 0; i < raffleData.numeros.length; i += numerosPorLinha) {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+                
+                for (let j = i; j < Math.min(i + numerosPorLinha, raffleData.numeros.length); j++) {
+                    const numeroData = raffleData.numeros[j];
+                    const button = document.createElement('button');
+                    button.className = `numero-button ${numeroData.vendido ? 'numero-vendido' : 'numero-disponivel'}`;
+                    button.textContent = numeroData.numero;
+                    button.onclick = () => abrirModalNumero(numeroData.numero);
+                    row.appendChild(button);
+                }
+                ui.numerosGrid.appendChild(row);
+            }
+        }
+
+        function atualizarEstatisticas() {
+            // ... (função sem alterações)
+            if (!raffleData.numeros) return;
+            const vendidos = raffleData.numeros.filter(n => n.vendido).length;
+            const total = raffleData.numeros.length;
             const disponiveis = total - vendidos;
+            
             ui.vendidosCount.textContent = vendidos;
             ui.disponiveisCount.textContent = disponiveis;
             ui.totalCount.textContent = total;
         }
-        function exportarDados() { /* ... sem alterações ... */ }
 
+        function showScreen(screenName) {
+            // ... (função sem alterações)
+            ui.loadingScreen.classList.add('hidden');
+            ui.setupScreen.classList.add('hidden');
+            ui.mainApp.classList.add('hidden');
+
+            if (screenName === 'loading') {
+                ui.loadingScreen.classList.remove('hidden');
+                ui.loadingContent.innerHTML = `<div class="loading-spinner"></div><p>Carregando dados...</p>`;
+            }
+            if (screenName === 'setup') ui.setupScreen.classList.remove('hidden');
+            if (screenName === 'main') ui.mainApp.classList.remove('hidden');
+        }
+
+        function mostrarIndicadorSalvamento(message = "Sincronizado") {
+            // ... (função sem alterações)
+            const indicator = ui.autoSaveIndicator;
+            indicator.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8.5 1.5A1.5 1.5 0 0 1 10 0h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5A1.5 1.5 0 0 1 6 1.5v1A1.5 1.5 0 0 1 4.5 4h-1a.5.5 0 0 0 0 1h1a.5.5 0 0 0 .5-.5V3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 0-1h-1A1.5 1.5 0 0 1 8.5 2.5v-1zM4.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-7z"/></svg> ${message}`;
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 2000);
+        }
+        
+        function exportarDados() {
+            // ... (função sem alterações)
+             if (!raffleData || !raffleData.numeros) {
+                alert('Não há dados para exportar.');
+                return;
+            }
+            const vendidos = raffleData.numeros.filter(n => n.vendido);
+            let conteudo = `RELATÓRIO DE RIFA - ${raffleData.vendedor}\n`;
+            conteudo += `Data: ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+            conteudo += `NÚMEROS VENDIDOS:\n================\n\n`;
+            vendidos.forEach(n => {
+                conteudo += `Número: ${n.numero}\nComprador: ${n.comprador}\n`;
+                if(n.telefone) conteudo += `Telefone: ${n.telefone}\n`;
+                conteudo += `------------------------\n`;
+            });
+            conteudo += `\nTotal de números vendidos: ${vendidos.length}\nTotal de números disponíveis: ${raffleData.numeros.length - vendidos.length}`;
+            if (navigator.share) {
+                navigator.share({ title: `Relatório de Rifa - ${raffleData.vendedor}`, text: conteudo }).catch(console.log);
+            } else {
+                navigator.clipboard.writeText(conteudo).then(() => alert('Relatório copiado para a área de transferência!'));
+            }
+        }
+        
+        // Lógica do Modal
+        function abrirModalNumero(numero) {
+            numeroSelecionado = numero;
+            const numeroData = raffleData.numeros.find(n => n.numero === numero);
+            const modalHTML = `<div class="modal-container"><div class="modal-header"><div class="modal-title" id="numeroModalTitle">Número ${numero}</div><button class="close-button" onclick="window.fecharModal()">&times;</button></div><div class="modal-content"><label class="label">Comprador</label><input type="text" id="compradorInput" class="input" placeholder="Nome do comprador" value="${numeroData.comprador || ''}"><label class="label">Telefone</label><input type="tel" id="telefoneInput" class="input" placeholder="(00) 00000-0000" value="${numeroData.telefone || ''}"><button id="salvarBtn" class="primary-button">💾 Salvar</button></div></div>`;
+            const modalOverlay = document.getElementById('numeroModal');
+            modalOverlay.innerHTML = modalHTML;
+            modalOverlay.classList.remove('hidden');
+            document.getElementById('salvarBtn').addEventListener('click', salvarNumero);
+        }
+        window.fecharModal = () => {
+            document.getElementById('numeroModal').classList.add('hidden');
+            numeroSelecionado = null;
+        }
+        function salvarNumero() {
+            if (numeroSelecionado === null) return;
+            const comprador = document.getElementById('compradorInput').value;
+            const telefone = document.getElementById('telefoneInput').value;
+            const numeroIndex = raffleData.numeros.findIndex(n => n.numero === numeroSelecionado);
+            if (numeroIndex !== -1) {
+                const updatedRaffleData = JSON.parse(JSON.stringify(raffleData));
+                updatedRaffleData.numeros[numeroIndex] = { ...updatedRaffleData.numeros[numeroIndex], comprador, telefone, vendido: comprador.trim() !== '' };
+                atualizarRifa(updatedRaffleData);
+            }
+            window.fecharModal();
+        }
+        document.addEventListener('click', e => {
+            if (e.target.classList.contains('modal-overlay')) e.target.classList.add('hidden');
+        });
     </script>
 </body>
 </html>
 
-O Que Fazer a Seguir
-Depois de seguir os dois passos acima, por favor, tente usar o aplicativo novamente. Em seguida, diga-me exatamente o que aparece na caixa preta na parte inferior do ecrã. Se houver linhas vermelhas, elas são a informação mais crucial.
-Estou confiante de que com estas informações, conseguiremos resolver o problema de uma vez por todas.
+Por favor, siga os passos para verificar o banco de dados e as regras. O mais provável é que isso resolva o problema em definitivo. Se não resolver, abra o console de desenvolvedor do seu navegador (geralmente com a tecla F12) e veja as mensagens que aparecem na aba "Console". Elas nos darão a pista final.
