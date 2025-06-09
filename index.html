@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RifaACS">
+    <title>RifaACS - Gerenciador de Rifas</title>
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%233B82F6' rx='40'/%3E%3Cpath fill='white' d='M45 60h90v15H45zm0 30h90v15H45zm0 30h90v15H45z'/%3E%3C/svg%3E">
+    <style>
+        :root { --primary-color: #3B82F6; --primary-hover: #2563EB; --danger-color: #EF4444; --success-color: #10B981; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F3F4F6; color: #374151; }
+        .container { min-height: 100%; display: flex; flex-direction: column; }
+        .setup-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .app-icon { width: 80px; height: 80px; background: var(--primary-color); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 40px; color: white; }
+        .app-title { font-size: 32px; font-weight: bold; }
+        .app-subtitle { font-size: 16px; color: #6B7280; }
+        .form-container, .auth-container { width: 100%; max-width: 400px; text-align: center; }
+        .form-container { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .label { font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; margin-top: 16px; display: block; text-align: left; }
+        .input { width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 12px; font-size: 16px; }
+        .input:focus { outline: none; border-color: var(--primary-color); }
+        .primary-button { width: 100%; background: var(--primary-color); color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 500; margin-top: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s; }
+        .primary-button:hover { background-color: var(--primary-hover); }
+        .primary-button:disabled { background: #D1D5DB; cursor: not-allowed; }
+        .secondary-button { background: #E5E7EB; color: #374151; }
+        .secondary-button:hover { background: #D1D5DB; }
+        .header { background: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 10; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-icon { width: 40px; height: 40px; background: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+        .header-title { font-size: 20px; font-weight: bold; }
+        .header-subtitle { font-size: 14px; color: #6B7280; }
+        .header-buttons { display: flex; gap: 8px; }
+        .header-button { width: 40px; height: 40px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; }
+        .content { flex: 1; padding: 16px; padding-bottom: 24px; }
+        .stats-container { display: flex; gap: 12px; margin-bottom: 24px; }
+        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
+        .stat-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: #6B7280; }
+        .grid-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
+        .numero-button { width: 50px; height: 50px; margin: 4px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .numero-disponivel { background: white; border-color: #D1D5DB; color: #374151; }
+        .numero-disponivel:hover { border-color: var(--primary-color); }
+        .numero-vendido { background: var(--success-color); border-color: #059669; color: white; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
+        .modal-container { background: white; border-radius: 16px; width: 100%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
+        .modal-header { padding: 20px; border-bottom: 1px solid #E5E7EB; }
+        .modal-title { font-size: 20px; font-weight: bold; }
+        .modal-content { padding: 20px; overflow-y: auto; }
+        .close-button { float: right; width: 32px; height: 32px; border: none; background: none; cursor: pointer; font-size: 24px; color: #6B7280; }
+        .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .hidden { display: none !important; }
+        .range-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .range-item input { text-align: center; }
+        .remove-button { background: var(--danger-color); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-weight: bold; }
+        hr { border: none; border-top: 1px solid #E5E7EB; margin: 16px 0; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 480px) { .stats-container { flex-direction: column; } .numero-button { width: calc(20% - 8px); height: auto; aspect-ratio: 1 / 1; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loadingScreen" class="setup-container"><div><div class="loading-spinner"></div><p>A iniciar...</p></div></div>
+        
+        <div id="setupScreen" class="setup-container hidden">
+            <div class="logo-container"><div class="app-icon">📊</div><div class="app-title">RifaACS</div><div class="app-subtitle">Crie e Gerencie a sua Rifa</div></div>
+            <div id="authContainer" class="auth-container"><p style="margin-bottom: 20px;">Faça login para salvar os seus dados na nuvem.</p><button id="loginBtn" class="primary-button"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/></svg>Sincronizar com Google</button></div>
+            <div id="configContainer" class="form-container hidden">
+                <p style="text-align: center; margin-bottom: 16px;">Ótimo! Agora, configure os detalhes da sua rifa.</p>
+                <label class="label">Seu Nome (Vendedor)</label><input type="text" id="vendedorInput" class="input">
+                <label class="label">Intervalos de Números</label>
+                <div id="initial-ranges-container"></div>
+                <button id="add-initial-range-btn" class="primary-button secondary-button" style="margin-top: 10px;">+ Adicionar outro intervalo</button>
+                <hr><button id="comecarBtn" class="primary-button" disabled>Criar Rifa</button>
+            </div>
+        </div>
+
+        <div id="mainApp" class="hidden">
+            <header class="header">
+                <div class="header-left"><div class="header-icon">📊</div><div><div class="header-title">RifaACS</div><div class="header-subtitle" id="vendedorHeader"></div></div></div>
+                <div class="header-buttons">
+                    <button id="settingsBtn" class="header-button" style="background: #737373;" title="Configurações">⚙️</button>
+                    <button id="exportBtn" class="header-button" style="background: var(--success-color);" title="Exportar Relatório">📄</button>
+                    <button id="logoutBtn" class="header-button" style="background: var(--danger-color);" title="Sair (Logout)">🚪</button>
+                </div>
+            </header>
+            <main class="content"><section class="stats-container"><div class="stat-card"><div id="vendidosCount" class="stat-number" style="color: var(--success-color);">0</div><div class="stat-label">Vendidos</div></div><div class="stat-card"><div id="disponiveisCount" class="stat-number" style="color: var(--primary-color);">0</div><div class="stat-label">Disponíveis</div></div><div class="stat-card"><div id="totalCount" class="stat-number">0</div><div class="stat-label">Total</div></div></section><section class="grid-container"><div id="numerosGrid"></div></section></main>
+        </div>
+    </div>
+
+    <div id="numeroModal" class="modal-overlay hidden"></div>
+    <div id="settingsModal" class="modal-overlay hidden"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const ui = {
+            loadingScreen: document.getElementById('loadingScreen'),
+            setupScreen: document.getElementById('setupScreen'),
+            authContainer: document.getElementById('authContainer'),
+            configContainer: document.getElementById('configContainer'),
+            mainApp: document.getElementById('mainApp'),
+            loginBtn: document.getElementById('loginBtn'),
+            comecarBtn: document.getElementById('comecarBtn'),
+            vendedorInput: document.getElementById('vendedorInput'),
+            initialRangesContainer: document.getElementById('initial-ranges-container'),
+            addInitialRangeBtn: document.getElementById('add-initial-range-btn'),
+            vendedorHeader: document.getElementById('vendedorHeader'),
+            settingsBtn: document.getElementById('settingsBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            numerosGrid: document.getElementById('numerosGrid'),
+            vendidosCount: document.getElementById('vendidosCount'),
+            disponiveisCount: document.getElementById('disponiveisCount'),
+            totalCount: document.getElementById('totalCount'),
+            numeroModal: document.getElementById('numeroModal'),
+            settingsModal: document.getElementById('settingsModal'),
+        };
+        
+        let auth, db, currentUser, currentRaffleData = {}, unsubscribeRaffleListener;
+        
+        const firebaseConfig = { apiKey: "AIzaSyBHyvrQPh221bMM1s7HvO9n7LrfxRF-UYA", authDomain: "rifaacs-69cef.firebaseapp.com", projectId: "rifaacs-69cef", storageBucket: "rifaacs-69cef.appspot.com", messagingSenderId: "568565118428", appId: "1:568565118428:web:cc16277171966ef1208b19" };
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                setupEventListeners();
+                monitorAuthState();
+            } catch (error) {
+                console.error("Erro crítico:", error);
+                alert("Não foi possível conectar à nuvem.");
+            }
+        });
+
+        function setupEventListeners() {
+            ui.loginBtn.addEventListener('click', signInWithGoogle);
+            ui.logoutBtn.addEventListener('click', logOut);
+            ui.comecarBtn.addEventListener('click', createNewRaffle);
+            ui.addInitialRangeBtn.addEventListener('click', () => addRangeInput(ui.initialRangesContainer));
+            ui.settingsBtn.addEventListener('click', openSettingsModal);
+            ui.exportBtn.addEventListener('click', exportData);
+            ui.vendedorInput.addEventListener('input', () => { ui.comecarBtn.disabled = !ui.vendedorInput.value.trim(); });
+        }
+
+        function monitorAuthState() {
+            onAuthStateChanged(auth, user => {
+                if (unsubscribeRaffleListener) unsubscribeRaffleListener();
+                if (user) {
+                    currentUser = user;
+                    listenToRaffleData();
+                } else {
+                    currentUser = null;
+                    showScreen('setup');
+                    ui.authContainer.classList.remove('hidden');
+                    ui.configContainer.classList.add('hidden');
+                }
+            });
+        }
+
+        async function signInWithGoogle() {
+            try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+            catch (error) { console.error("Erro no login:", error); alert(`Falha no login: ${error.code}`); }
+        }
+
+        async function logOut() {
+            if (confirm('Deseja realmente sair?')) {
+                try { await signOut(auth); location.reload(); } catch (error) { console.error("Erro ao sair:", error); }
+            }
+        }
+
+        function listenToRaffleData() {
+            showScreen('loading');
+            const raffleDocRef = doc(db, 'rifas', currentUser.uid);
+            unsubscribeRaffleListener = onSnapshot(raffleDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentRaffleData = docSnap.data();
+                    renderApp(currentRaffleData);
+                    showScreen('main');
+                } else {
+                    showScreen('setup');
+                    ui.authContainer.classList.add('hidden');
+                    ui.configContainer.classList.remove('hidden');
+                    ui.vendedorInput.value = currentUser.displayName || '';
+                    ui.initialRangesContainer.innerHTML = '';
+                    addRangeInput(ui.initialRangesContainer);
+                }
+            }, (error) => {
+                console.error("Erro ao ler do Firestore:", error);
+                alert("Erro ao carregar dados.");
+                logOut();
+            });
+        }
+        
+        function showScreen(screenName) {
+            ['loadingScreen', 'setupScreen', 'mainApp'].forEach(s => ui[s].classList.add('hidden'));
+            if(ui[screenName]) ui[screenName].classList.remove('hidden');
+        }
+
+        function renderApp(data) {
+            ui.vendedorHeader.textContent = `Vendedor: ${data.vendedor}`;
+            updateGrid(data.numeros);
+            updateStats(data.numeros);
+        }
+
+        function updateGrid(numeros) {
+            ui.numerosGrid.innerHTML = '';
+            if (!numeros) return;
+            const sortedNumeros = [...numeros].sort((a, b) => a.numero - b.numero);
+            sortedNumeros.forEach(numeroData => {
+                const button = document.createElement('button');
+                button.className = `numero-button ${numeroData.vendido ? 'numero-vendido' : 'numero-disponivel'}`;
+                button.textContent = numeroData.numero;
+                button.onclick = () => openNumberModal(numeroData);
+                ui.numerosGrid.appendChild(button);
+            });
+        }
+
+        function updateStats(numeros) {
+            if (!numeros) return;
+            const vendidos = numeros.filter(n => n.vendido).length;
+            ui.vendidosCount.textContent = vendidos;
+            ui.disponiveisCount.textContent = numeros.length - vendidos;
+            ui.totalCount.textContent = numeros.length;
+        }
+
+        function addRangeInput(container, range = { start: '', end: '' }) {
+            const div = document.createElement('div');
+            div.className = 'range-item';
+            div.innerHTML = `
+                <input type="number" class="input range-start" placeholder="Início" value="${range.start}">
+                <span>a</span>
+                <input type="number" class="input range-end" placeholder="Fim" value="${range.end}">
+                <button type="button" class="remove-button">&times;</button>
+            `;
+            div.querySelector('.remove-button').onclick = () => div.remove();
+            container.appendChild(div);
+        }
+
+        function getRangesFromContainer(container) {
+            const ranges = [];
+            let isValid = true;
+            container.querySelectorAll('.range-item').forEach(item => {
+                const start = parseInt(item.querySelector('.range-start').value);
+                const end = parseInt(item.querySelector('.range-end').value);
+                if (!isNaN(start) && !isNaN(end) && start <= end) {
+                    ranges.push({ start, end });
+                } else {
+                    isValid = false;
+                }
+            });
+            if (!isValid) return null;
+
+            const sorted = [...ranges].sort((a,b) => a.start - b.start);
+            for(let i = 0; i < sorted.length - 1; i++) {
+                if(sorted[i].end >= sorted[i+1].start) return null;
+            }
+            return ranges;
+        }
+        
+        function generateNumbersFromRanges(ranges, existingNumbersMap = new Map()) {
+            const newNumbers = [];
+            ranges.forEach(range => {
+                for (let i = range.start; i <= range.end; i++) {
+                    const existingData = existingNumbersMap.get(i);
+                    newNumbers.push(existingData || { numero: i, comprador: '', telefone: '', vendido: false });
+                }
+            });
+            return newNumbers;
+        }
+
+        async function createNewRaffle() {
+            const vendedor = ui.vendedorInput.value.trim();
+            const ranges = getRangesFromContainer(ui.initialRangesContainer);
+            if (!vendedor || !ranges || ranges.length === 0) {
+                alert("Verifique o nome e os intervalos. Os intervalos devem ser preenchidos e não devem ter sobreposição.");
+                return;
+            }
+            const numeros = generateNumbersFromRanges(ranges);
+            const newRaffle = { vendedor, ranges, numeros, criadaEm: new Date() };
+            try {
+                await setDoc(doc(db, 'rifas', currentUser.uid), newRaffle);
+            } catch(error) {
+                console.error("Erro ao criar rifa:", error);
+                alert("Não foi possível salvar a nova rifa.");
+            }
+        }
+        
+        function openSettingsModal() {
+            ui.settingsModal.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header"><button class="close-button">&times;</button><h2 class="modal-title">Configurações</h2></div>
+                    <div class="modal-content">
+                        <label class="label">Seu Nome (Vendedor)</label>
+                        <input type="text" id="settings-vendedor" class="input" value="${currentRaffleData.vendedor}">
+                        <hr>
+                        <label class="label">Seus Intervalos</label>
+                        <div id="settings-ranges-container"></div>
+                        <button id="settings-add-range-btn" class="primary-button secondary-button" style="margin-top: 10px;">+ Adicionar novo intervalo</button>
+                        <hr>
+                        <button id="save-settings-btn" class="primary-button">💾 Salvar Alterações</button>
+                    </div>
+                </div>`;
+            ui.settingsModal.classList.remove('hidden');
+            const rangesContainer = ui.settingsModal.querySelector('#settings-ranges-container');
+            currentRaffleData.ranges.forEach(r => addRangeInput(rangesContainer, r));
+            ui.settingsModal.querySelector('#settings-add-range-btn').onclick = () => addRangeInput(rangesContainer);
+            ui.settingsModal.querySelector('.close-button').onclick = () => ui.settingsModal.classList.add('hidden');
+            ui.settingsModal.querySelector('#save-settings-btn').onclick = saveSettings;
+        }
+
+        async function saveSettings() {
+            const newName = document.getElementById('settings-vendedor').value.trim();
+            const newRanges = getRangesFromContainer(document.getElementById('settings-ranges-container'));
+            if (!newName || !newRanges || newRanges.length === 0) {
+                alert("Verifique o nome e os intervalos. Os intervalos devem ser preenchidos e não devem ter sobreposição.");
+                return;
+            }
+            const existingNumbersMap = new Map(currentRaffleData.numeros.map(n => [n.numero, n]));
+            const newNumbers = generateNumbersFromRanges(newRanges, existingNumbersMap);
+            const updatedRaffle = { ...currentRaffleData, vendedor: newName, ranges: newRanges, numeros: newNumbers };
+            try {
+                await setDoc(doc(db, 'rifas', currentUser.uid), updatedRaffle);
+                ui.settingsModal.classList.add('hidden');
+                alert("Configurações salvas com sucesso!");
+            } catch (error) {
+                console.error("Erro ao salvar configurações:", error);
+                alert("Não foi possível salvar as alterações.");
+            }
+        }
+
+        function openNumberModal(numeroData) {
+            ui.numeroModal.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header"><button class="close-button">&times;</button><h2 class="modal-title">Número ${numeroData.numero}</h2></div>
+                    <div class="modal-content">
+                        <label class="label">Nome do Comprador</label>
+                        <input type="text" id="compradorInput" class="input" value="${numeroData.comprador || ''}">
+                        <label class="label">Telefone (Opcional)</label>
+                        <input type="tel" id="telefoneInput" class="input" value="${numeroData.telefone || ''}">
+                        <button class="primary-button">💾 Salvar Alterações</button>
+                    </div>
+                </div>`;
+            ui.numeroModal.classList.remove('hidden');
+            const closeModal = () => ui.numeroModal.classList.add('hidden');
+            ui.numeroModal.querySelector('.close-button').onclick = closeModal;
+            ui.numeroModal.querySelector('.primary-button').onclick = () => {
+                const comprador = document.getElementById('compradorInput').value;
+                const telefone = document.getElementById('telefoneInput').value;
+                const numeroIndex = currentRaffleData.numeros.findIndex(n => n.numero === numeroData.numero);
+                const updatedNumeros = [...currentRaffleData.numeros];
+                updatedNumeros[numeroIndex] = { ...numeroData, comprador, telefone, vendido: comprador.trim() !== '' };
+                setDoc(doc(db, 'rifas', currentUser.uid), { numeros: updatedNumeros }, { merge: true })
+                    .catch(e => { console.error("Erro ao salvar:", e); alert("Não foi possível salvar."); });
+                closeModal();
+            };
+        }
+
+        function exportData() {
+            if (!currentRaffleData.numeros) return alert("Não há dados para exportar.");
+            const { vendedor, numeros } = currentRaffleData;
+            const vendidos = numeros.filter(n => n.vendido);
+            let conteudo = `RELATÓRIO DE RIFA - ${vendedor}\nData: ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+            conteudo += `NÚMEROS VENDIDOS (${vendidos.length}):\n================\n\n`;
+            [...vendidos].sort((a,b) => a.numero - b.numero).forEach(n => {
+                conteudo += `Número: ${n.numero}\nComprador: ${n.comprador}\n`;
+                if(n.telefone) conteudo += `Telefone: ${n.telefone}\n`;
+                conteudo += `------------------------\n`;
+            });
+            conteudo += `\nTotal de números: ${numeros.length}\nDisponíveis: ${numeros.length - vendidos.length}`;
+            if (navigator.share) {
+                navigator.share({ title: `Relatório de Rifa - ${vendedor}`, text: conteudo });
+            } else {
+                navigator.clipboard.writeText(conteudo).then(() => alert('Relatório copiado!'));
+            }
+        }
+    </script>
+</body>
+</html>
