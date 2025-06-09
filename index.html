@@ -252,10 +252,9 @@
                     ranges.push({ start, end });
                 }
             });
-            // Validação de sobreposição
             const sorted = [...ranges].sort((a,b) => a.start - b.start);
             for(let i = 0; i < sorted.length - 1; i++) {
-                if(sorted[i].end >= sorted[i+1].start) return null; // Retorna null se houver sobreposição
+                if(sorted[i].end >= sorted[i+1].start) return null;
             }
             return ranges;
         }
