@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RifaACS">
+    <title>RifaACS - Gerenciador de Rifas</title>
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%233B82F6' rx='40'/%3E%3Cpath fill='white' d='M45 60h90v15H45zm0 30h90v15H45zm0 30h90v15H45z'/%3E%3C/svg%3E">
+    <style>
+        /* Estilos CSS gerais (sem alterações significativas) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #F3F4F6;
+            color: #374151;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setup-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: #3B82F6;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 40px;
+            color: white;
+        }
+
+        .app-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .app-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            margin-top: 16px;
+            display: block;
+        }
+
+        .input {
+            width: 100%;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            background: white;
+            color: #374151;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: center; /* Alinha verticalmente os itens na linha */
+        }
+        
+        .interval-row {
+            margin-bottom: 12px;
+        }
+
+        .half-input {
+            flex: 1;
+        }
+
+        .primary-button, .secondary-button {
+            width: 100%;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .primary-button {
+            background: #3B82F6;
+            color: white;
+        }
+
+        .primary-button:hover:not(:disabled) {
+            background: #2563EB;
+        }
+        
+        .secondary-button {
+            background: #E5E7EB;
+            color: #374151;
+            margin-top: 12px;
+        }
+        
+        .secondary-button:hover {
+             background: #D1D5DB;
+        }
+
+        .remove-interval-btn {
+            background: none;
+            border: none;
+            color: #EF4444;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+        
+        .primary-button:disabled {
+            background: #D1D5DB;
+            cursor: not-allowed;
+        }
+
+        .header {
+            background: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-icon { width: 40px; height: 40px; background: #3B82F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+        .header-title { font-size: 20px; font-weight: bold; color: #374151; }
+        .header-subtitle { font-size: 14px; color: #6B7280; }
+        .header-buttons { display: flex; gap: 8px; }
+
+        .header-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: opacity 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .header-button:hover { opacity: 0.9; }
+
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+        .stats-container { display: flex; gap: 12px; margin-bottom: 24px; }
+        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .stat-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: #6B7280; }
+
+        .grid-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .grid-row { display: flex; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+
+        .numero-button { width: 50px; height: 50px; margin: 4px; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        .numero-disponivel { background: white; border-color: #D1D5DB; color: #374151; }
+        .numero-disponivel:hover { border-color: #3B82F6; background: #F3F4F6; }
+        .numero-vendido { background: #10B981; border-color: #059669; color: white; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
+        .modal-container { background: white; border-radius: 16px; width: 100%; max-width: 400px; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #E5E7EB; }
+        .modal-title { font-size: 20px; font-weight: bold; color: #374151; }
+        .close-button { width: 32px; height: 32px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #374151; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
+        .close-button:hover { background: #F3F4F6; }
+        .modal-content { padding: 20px; overflow-y: auto; }
+
+        .hidden { display: none !important; }
+        .auto-save-indicator { position: fixed; bottom: 20px; right: 20px; background: #10B981; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; opacity: 0; transition: opacity 0.3s; z-index: 1001; display: flex; align-items: center; gap: 6px; }
+        .auto-save-indicator.show { opacity: 1; }
+        
+        .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .form-container, .auth-container { margin: 0 10px; padding: 20px; }
+            .numero-button { width: 45px; height: 45px; }
+            .stats-container { flex-direction: column; gap: 8px; }
+            .stat-card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Telas de Carregamento e Setup -->
+        <div id="loadingScreen" class="setup-container">
+            <div id="loadingContent">
+                <div class="loading-spinner"></div>
+                <p>Carregando dados...</p>
+            </div>
+        </div>
+
+        <div id="setupScreen" class="setup-container hidden">
+            <div class="logo-container">
+                <div class="app-icon">📊</div>
+                <div class="app-title">RifaACS</div>
+                <div class="app-subtitle">Crie e Gerencie sua Rifa</div>
+            </div>
+
+            <div id="authContainer" class="auth-container">
+                <p style="margin-bottom: 20px;">Faça login para salvar seus dados na nuvem.</p>
+                <button id="loginBtn" class="primary-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
+                    </svg>
+                    Sincronizar com Google
+                </button>
+            </div>
+
+            <div id="configContainer" class="form-container hidden">
+                 <p style="text-align: center; margin-bottom: 16px;">Configure os detalhes da sua rifa.</p>
+                <label class="label">Nome do Vendedor</label>
+                <input type="text" id="vendedorInput" class="input" placeholder="Digite seu nome">
+
+                <label class="label">Intervalos de Números</label>
+                <div id="initialIntervalsContainer">
+                    <!-- Linhas de intervalo serão adicionadas aqui por JS -->
+                </div>
+                <button id="addInitialIntervalBtn" class="secondary-button">Adicionar Intervalo</button>
+                <button id="comecarBtn" class="primary-button" disabled>Começar</button>
+            </div>
+        </div>
+
+        <!-- App Principal -->
+        <div id="mainApp" class="hidden">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-icon">📊</div>
+                    <div>
+                        <div class="header-title">RifaACS</div>
+                        <div class="header-subtitle" id="vendedorHeader">Vendedor: </div>
+                    </div>
+                </div>
+
+                <div class="header-buttons">
+                    <button id="settingsBtn" class="header-button" style="background: #6366F1;" title="Configurações">⚙️</button>
+                    <button id="exportBtn" class="header-button" style="background: #10B981;" title="Exportar Relatório">📄</button>
+                    <button id="logoutBtn" class="header-button" style="background: #EF4444;" title="Sair (Logout)">🚪</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #10B981;" id="vendidosCount">0</div>
+                        <div class="stat-label">Vendidos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #3B82F6;" id="disponiveisCount">0</div>
+                        <div class="stat-label">Disponíveis</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #374151;" id="totalCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div id="numerosGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="autoSaveIndicator" class="auto-save-indicator">Sincronizado</div>
+    <div id="numeroModal" class="modal-overlay hidden"> <!-- Conteúdo injetado por JS --> </div>
+    
+    <!-- NOVO: Modal de Configurações -->
+    <div id="settingsModal" class="modal-overlay hidden">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h2 class="modal-title">Configurações da Rifa</h2>
+          <button class="close-button" onclick="window.closeSettingsModal()">&times;</button>
+        </div>
+        <div class="modal-content">
+          <label class="label">Nome do Vendedor</label>
+          <input type="text" id="vendedorEditInput" class="input">
+
+          <label class="label">Intervalos de Números</label>
+          <div id="editIntervalsContainer">
+            <!-- Linhas de intervalo para edição -->
+          </div>
+          <button id="addEditIntervalBtn" class="secondary-button">Adicionar Intervalo</button>
+          <button id="saveSettingsBtn" class="primary-button">Salvar Alterações</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Firebase Libraries -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let auth, db;
+        let currentUser = null;
+        let raffleData = {};
+        let unsubscribeRaffleListener = null;
+
+        const firebaseConfig = {
+            // Sua configuração do Firebase permanece a mesma
+             apiKey: "AIzaSyBHyvrQPh221bMM1s7HvO9n7LrfxRF-UYA",
+            authDomain: "rifaacs-69cef.firebaseapp.com",
+            projectId: "rifaacs-69cef",
+            storageBucket: "rifaacs-69cef.appspot.com",
+            messagingSenderId: "568565118428",
+            appId: "1:568565118428:web:cc16277171966ef1208b19",
+            measurementId: "G-GDGLK7436E"
+        };
+        
+        // Mapeamento dos elementos da UI
+        const ui = {
+            loadingScreen: document.getElementById('loadingScreen'),
+            setupScreen: document.getElementById('setupScreen'),
+            authContainer: document.getElementById('authContainer'),
+            configContainer: document.getElementById('configContainer'),
+            mainApp: document.getElementById('mainApp'),
+            loginBtn: document.getElementById('loginBtn'),
+            comecarBtn: document.getElementById('comecarBtn'),
+            vendedorInput: document.getElementById('vendedorInput'),
+            initialIntervalsContainer: document.getElementById('initialIntervalsContainer'),
+            addInitialIntervalBtn: document.getElementById('addInitialIntervalBtn'),
+            vendedorHeader: document.getElementById('vendedorHeader'),
+            settingsBtn: document.getElementById('settingsBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            numerosGrid: document.getElementById('numerosGrid'),
+            vendidosCount: document.getElementById('vendidosCount'),
+            disponiveisCount: document.getElementById('disponiveisCount'),
+            totalCount: document.getElementById('totalCount'),
+            autoSaveIndicator: document.getElementById('autoSaveIndicator'),
+            numeroModal: document.getElementById('numeroModal'),
+            settingsModal: document.getElementById('settingsModal'),
+            vendedorEditInput: document.getElementById('vendedorEditInput'),
+            editIntervalsContainer: document.getElementById('editIntervalsContainer'),
+            addEditIntervalBtn: document.getElementById('addEditIntervalBtn'),
+            saveSettingsBtn: document.getElementById('saveSettingsBtn'),
+        };
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                setupEventListeners();
+                monitorAuthState();
+                addIntervalInput(ui.initialIntervalsContainer); // Adiciona o primeiro campo de intervalo na tela de setup
+            } catch (error) {
+                console.error("Erro ao inicializar o Firebase:", error);
+                ui.loadingScreen.innerHTML = "<p>Erro de Conexão. Tente novamente mais tarde.</p>";
+            }
+        });
+
+        function setupEventListeners() {
+            ui.loginBtn.addEventListener('click', signInWithGoogle);
+            ui.logoutBtn.addEventListener('click', fazerLogout);
+            ui.comecarBtn.addEventListener('click', criarNovaRifa);
+            ui.exportBtn.addEventListener('click', exportarDados);
+            ui.settingsBtn.addEventListener('click', openSettingsModal);
+            ui.saveSettingsBtn.addEventListener('click', saveSettings);
+            
+            ui.vendedorInput.addEventListener('input', () => {
+                ui.comecarBtn.disabled = !ui.vendedorInput.value.trim();
+            });
+            
+            ui.addInitialIntervalBtn.addEventListener('click', () => addIntervalInput(ui.initialIntervalsContainer));
+            ui.addEditIntervalBtn.addEventListener('click', () => addIntervalInput(ui.editIntervalsContainer));
+            
+            // Fechar modais ao clicar no fundo
+            [ui.numeroModal, ui.settingsModal].forEach(modal => {
+                modal.addEventListener('click', e => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+        }
+        
+        // --- LÓGICA DE AUTENTICAÇÃO E DADOS ---
+        function monitorAuthState() {
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    currentUser = user;
+                    checkRaffleData();
+                } else {
+                    currentUser = null;
+                    if (unsubscribeRaffleListener) unsubscribeRaffleListener();
+                    showScreen('setup');
+                    ui.authContainer.classList.remove('hidden');
+                    ui.configContainer.classList.add('hidden');
+                }
+            });
+        }
+
+        async function signInWithGoogle() {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Erro no login com Google:", error);
+                alert(`Falha no login: ${error.code}`);
+            }
+        }
+
+        async function fazerLogout() {
+            if (confirm('Deseja realmente sair?')) {
+                try {
+                    await signOut(auth);
+                    location.reload();
+                } catch (error) {
+                    console.error("Erro ao fazer logout:", error);
+                }
+            }
+        }
+        
+        function checkRaffleData() {
+            showScreen('loading');
+            const raffleDocRef = doc(db, 'rifas', currentUser.uid);
+            if (unsubscribeRaffleListener) unsubscribeRaffleListener();
+
+            unsubscribeRaffleListener = onSnapshot(raffleDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    raffleData = docSnap.data();
+                    // Garante que a estrutura de dados antiga seja compatível
+                    if (raffleData.intervaloInicio && !raffleData.intervalos) {
+                        raffleData.intervalos = [{ inicio: raffleData.intervaloInicio, fim: raffleData.intervaloFim }];
+                    }
+                    renderApp();
+                    showScreen('main');
+                    showAutoSaveIndicator();
+                } else {
+                    ui.vendedorInput.value = currentUser.displayName || '';
+                    ui.comecarBtn.disabled = !ui.vendedorInput.value.trim();
+                    ui.authContainer.classList.add('hidden');
+                    ui.configContainer.classList.remove('hidden');
+                    showScreen('setup');
+                }
+            }, (error) => {
+                console.error("Erro no listener do Firestore:", error);
+                alert("Erro de permissão ao ler os dados.");
+                showScreen('setup');
+            });
+        }
+
+        async function criarNovaRifa() {
+            const vendedor = ui.vendedorInput.value.trim();
+            if (!vendedor) {
+                alert("Por favor, digite o nome do vendedor.");
+                return;
+            }
+            
+            const { intervals, error } = getIntervalsFromUI(ui.initialIntervalsContainer);
+            if (error) {
+                alert(error);
+                return;
+            }
+
+            const { numeros, error: numberError } = generateNumbersFromIntervals(intervals);
+            if (numberError) {
+                alert(numberError);
+                return;
+            }
+            
+            const novaRifa = {
+                vendedor,
+                intervalos: intervals,
+                numeros,
+                criadaEm: new Date().toISOString()
+            };
+            
+            ui.comecarBtn.disabled = true;
+            ui.comecarBtn.textContent = "Salvando...";
+
+            try {
+                const raffleDocRef = doc(db, 'rifas', currentUser.uid);
+                await setDoc(raffleDocRef, novaRifa);
+            } catch(error) {
+                console.error("Erro ao criar a rifa:", error);
+                alert("Não foi possível salvar a nova rifa.");
+            } finally {
+                ui.comecarBtn.disabled = false;
+                ui.comecarBtn.textContent = "Começar";
+            }
+        }
+        
+        async function updateRaffleData(newData, showIndicator = true) {
+            const raffleDocRef = doc(db, 'rifas', currentUser.uid);
+            try {
+                await setDoc(raffleDocRef, newData);
+                if (showIndicator) showAutoSaveIndicator();
+            } catch (error) {
+                console.error("Erro ao atualizar a rifa:", error);
+                alert("Falha na sincronização.");
+            }
+        }
+        
+        // --- LÓGICA DE INTERVALOS ---
+        function addIntervalInput(container, interval = { inicio: '', fim: '' }) {
+            const row = document.createElement('div');
+            row.className = 'row interval-row';
+            row.innerHTML = `
+                <div class="half-input">
+                    <input type="number" class="input interval-start" placeholder="Início" value="${interval.inicio}">
+                </div>
+                <div class="half-input">
+                    <input type="number" class="input interval-end" placeholder="Fim" value="${interval.fim}">
+                </div>
+                <button class="remove-interval-btn" title="Remover Intervalo">&times;</button>
+            `;
+            row.querySelector('.remove-interval-btn').addEventListener('click', () => {
+                // Não permite remover a última linha de intervalo
+                if (container.querySelectorAll('.interval-row').length > 1) {
+                    row.remove();
+                } else {
+                    alert('É necessário ter pelo menos um intervalo.');
+                }
+            });
+            container.appendChild(row);
+        }
+        
+        function getIntervalsFromUI(container) {
+            const intervals = [];
+            const rows = container.querySelectorAll('.interval-row');
+            if (rows.length === 0) {
+                return { error: 'Adicione pelo menos um intervalo de números.' };
+            }
+            
+            for (const row of rows) {
+                const inicio = parseInt(row.querySelector('.interval-start').value);
+                const fim = parseInt(row.querySelector('.interval-end').value);
+
+                if (isNaN(inicio) || isNaN(fim)) {
+                    return { error: 'Preencha todos os campos de início e fim dos intervalos.' };
+                }
+                if (inicio > fim) {
+                    return { error: `O número inicial (${inicio}) não pode ser maior que o final (${fim}).` };
+                }
+                intervals.push({ inicio, fim });
+            }
+            return { intervals };
+        }
+        
+        function generateNumbersFromIntervals(intervals) {
+            const allNumbers = new Set();
+            for (const interval of intervals) {
+                for (let i = interval.inicio; i <= interval.fim; i++) {
+                    if(allNumbers.has(i)) {
+                        return { error: `O número ${i} está presente em mais de um intervalo. Corrija os intervalos para não haver sobreposição.`};
+                    }
+                    allNumbers.add(i);
+                }
+            }
+
+            const numeros = Array.from(allNumbers).sort((a,b) => a-b).map(num => ({
+                numero: num,
+                comprador: '',
+                telefone: '',
+                vendido: false
+            }));
+            return { numeros };
+        }
+
+        // --- RENDERIZAÇÃO E UI ---
+        function renderApp() {
+            ui.vendedorHeader.textContent = `Vendedor: ${raffleData.vendedor}`;
+            updateGrid();
+            updateStats();
+        }
+
+        function updateGrid() {
+            ui.numerosGrid.innerHTML = '';
+            if (!raffleData.numeros || raffleData.numeros.length === 0) return;
+            
+            // Garante que os números estão ordenados
+            raffleData.numeros.sort((a, b) => a.numero - b.numero);
+
+            const numerosPorLinha = window.innerWidth < 480 ? 5 : 6;
+            for (let i = 0; i < raffleData.numeros.length; i += numerosPorLinha) {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+                
+                for (let j = i; j < Math.min(i + numerosPorLinha, raffleData.numeros.length); j++) {
+                    const numeroData = raffleData.numeros[j];
+                    const button = document.createElement('button');
+                    button.className = `numero-button ${numeroData.vendido ? 'numero-vendido' : 'numero-disponivel'}`;
+                    button.textContent = numeroData.numero;
+                    button.onclick = () => openNumberModal(numeroData.numero);
+                    row.appendChild(button);
+                }
+                ui.numerosGrid.appendChild(row);
+            }
+        }
+
+        function updateStats() {
+            if (!raffleData.numeros) return;
+            const vendidos = raffleData.numeros.filter(n => n.vendido).length;
+            const total = raffleData.numeros.length;
+            const disponiveis = total - vendidos;
+            
+            ui.vendidosCount.textContent = vendidos;
+            ui.disponiveisCount.textContent = disponiveis;
+            ui.totalCount.textContent = total;
+        }
+
+        function showScreen(screenName) {
+            ui.loadingScreen.classList.add('hidden');
+            ui.setupScreen.classList.add('hidden');
+            ui.mainApp.classList.add('hidden');
+
+            const screenMap = {
+                loading: ui.loadingScreen,
+                setup: ui.setupScreen,
+                main: ui.mainApp,
+            };
+            if(screenMap[screenName]) screenMap[screenName].classList.remove('hidden');
+        }
+
+        function showAutoSaveIndicator() {
+            const indicator = ui.autoSaveIndicator;
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 2000);
+        }
+        
+        function exportarDados() {
+            if (!raffleData || !raffleData.numeros) {
+                alert('Não há dados para exportar.');
+                return;
+            }
+            const vendidos = raffleData.numeros.filter(n => n.vendido).sort((a, b) => a.numero - b.numero);
+            let conteudo = `RELATÓRIO DE RIFA - ${raffleData.vendedor}\n`;
+            conteudo += `Data: ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+            conteudo += `NÚMEROS VENDIDOS:\n================\n\n`;
+            vendidos.forEach(n => {
+                conteudo += `Número: ${n.numero}\nComprador: ${n.comprador || 'Não informado'}\n`;
+                if(n.telefone) conteudo += `Telefone: ${n.telefone}\n`;
+                conteudo += `------------------------\n`;
+            });
+            conteudo += `\nTotal de números vendidos: ${vendidos.length}\nTotal de números disponíveis: ${raffleData.numeros.length - vendidos.length}`;
+            if (navigator.share) {
+                navigator.share({ title: `Relatório de Rifa - ${raffleData.vendedor}`, text: conteudo }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(conteudo).then(() => alert('Relatório copiado para a área de transferência!'));
+            }
+        }
+        
+        // --- LÓGICA DOS MODAIS ---
+        // Modal de Número
+        function openNumberModal(numero) {
+            const numeroData = raffleData.numeros.find(n => n.numero === numero);
+            const modalHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="modal-title">Número ${numero}</div>
+                        <button class="close-button" onclick="window.closeNumberModal()">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <label class="label">Comprador</label>
+                        <input type="text" id="compradorInput" class="input" placeholder="Nome do comprador" value="${numeroData.comprador || ''}">
+                        <label class="label">Telefone</label>
+                        <input type="tel" id="telefoneInput" class="input" placeholder="(00) 00000-0000" value="${numeroData.telefone || ''}">
+                        <button id="saveNumberBtn" class="primary-button">💾 Salvar</button>
+                    </div>
+                </div>`;
+            ui.numeroModal.innerHTML = modalHTML;
+            ui.numeroModal.classList.remove('hidden');
+            
+            document.getElementById('saveNumberBtn').addEventListener('click', () => saveNumberData(numero));
+        }
+
+        function saveNumberData(numero) {
+            const comprador = document.getElementById('compradorInput').value.trim();
+            const telefone = document.getElementById('telefoneInput').value.trim();
+            
+            const numeroIndex = raffleData.numeros.findIndex(n => n.numero === numero);
+            if (numeroIndex !== -1) {
+                const updatedRaffleData = JSON.parse(JSON.stringify(raffleData));
+                updatedRaffleData.numeros[numeroIndex] = { ...updatedRaffleData.numeros[numeroIndex], comprador, telefone, vendido: comprador !== '' };
+                updateRaffleData(updatedRaffleData); // Isso já vai chamar o listener e atualizar a tela
+            }
+            window.closeNumberModal();
+        }
+
+        window.closeNumberModal = () => ui.numeroModal.classList.add('hidden');
+
+        // Modal de Configurações
+        function openSettingsModal() {
+            ui.vendedorEditInput.value = raffleData.vendedor || '';
+            ui.editIntervalsContainer.innerHTML = '';
+            raffleData.intervalos.forEach(interval => {
+                addIntervalInput(ui.editIntervalsContainer, interval);
+            });
+            ui.settingsModal.classList.remove('hidden');
+        }
+
+        async function saveSettings() {
+            const novoVendedor = ui.vendedorEditInput.value.trim();
+            if(!novoVendedor) {
+                alert("O nome do vendedor não pode ficar em branco.");
+                return;
+            }
+            
+            const { intervals: novosIntervalos, error } = getIntervalsFromUI(ui.editIntervalsContainer);
+            if (error) {
+                alert(error);
+                return;
+            }
+
+            const { numeros: novosNumeros, error: numberError } = generateNumbersFromIntervals(novosIntervalos);
+            if(numberError){
+                alert(numberError);
+                return;
+            }
+
+            // Preserva os dados dos números já vendidos que continuam existindo
+            const soldNumbersMap = new Map(raffleData.numeros.filter(n => n.vendido).map(n => [n.numero, n]));
+            
+            novosNumeros.forEach(novoNumero => {
+                if (soldNumbersMap.has(novoNumero.numero)) {
+                    const dadosAntigos = soldNumbersMap.get(novoNumero.numero);
+                    novoNumero.comprador = dadosAntigos.comprador;
+                    novoNumero.telefone = dadosAntigos.telefone;
+                    novoNumero.vendido = dadosAntigos.vendido;
+                }
+            });
+            
+            const rifaAtualizada = {
+                ...raffleData,
+                vendedor: novoVendedor,
+                intervalos: novosIntervalos,
+                numeros: novosNumeros,
+            };
+            
+            ui.saveSettingsBtn.disabled = true;
+            ui.saveSettingsBtn.textContent = "Salvando...";
+            
+            await updateRaffleData(rifaAtualizada, false);
+            
+            ui.saveSettingsBtn.disabled = false;
+            ui.saveSettingsBtn.textContent = "Salvar Alterações";
+            
+            window.closeSettingsModal();
+            showAutoSaveIndicator();
+        }
+
+        window.closeSettingsModal = () => ui.settingsModal.classList.add('hidden');
+
+    </script>
+</body>
+</html>
